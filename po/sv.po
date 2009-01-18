@@ -1,15 +1,15 @@
-# Hebrew translation for enlightenment
+# Swedish translation for enlightenment
 # This file is distributed under the same license as the enlightenment package.
-# Yaron <sh.yaron@gmail.com>, 2008.
+# Daniel Nylander <yeager@ubuntu.com>, 2009.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: enlightenment\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-01-03 14:58+0800\n"
-"PO-Revision-Date: 2008-11-29 23:20+0000\n"
-"Last-Translator: Yaron <sh.yaron@gmail.com>\n"
-"Language-Team: Hebrew <he@li.org>\n"
+"PO-Revision-Date: 2009-01-10 12:46+0000\n"
+"Last-Translator: Daniel Nylander <yeager@ubuntu.com>\n"
+"Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -17,11 +17,11 @@ msgstr ""
 
 #: ../e_mod_config.c:41
 msgid "Population Settings"
-msgstr "הגדרות אוכלוסיה"
+msgstr "Befolkningsinställningar"
 
 #: ../e_mod_config.c:91
 msgid "Number of penguins:"
-msgstr "מספר הפינגווינים:"
+msgstr "Antal pingviner:"
 
 #: ../e_mod_config.c:93 ../e_mod_config.c:103
 #, c-format
@@ -30,7 +30,7 @@ msgstr "%1.0f"
 
 #: ../e_mod_config.c:96
 msgid "Zoom factor:"
-msgstr "מקדם התקריב:"
+msgstr "Zoomfaktor:"
 
 #: ../e_mod_config.c:98
 #, c-format
@@ -39,17 +39,17 @@ msgstr "%1.1f X"
 
 #: ../e_mod_config.c:101
 msgid "Transparency:"
-msgstr "שקיפות:"
+msgstr "Transparens:"
 
 #. Lista
 #: ../e_mod_config.c:107
 msgid "Select population:"
-msgstr "בחר אוכלוסיה:"
+msgstr "Välj befolkning:"
 
 #: ../e_mod_main.c:60
 msgid "Appearance"
-msgstr "חזות"
+msgstr "Utseende"
 
 #: ../e_mod_main.c:61
 msgid "Penguins"
-msgstr "פינגווינים"
+msgstr "Pingviner"
