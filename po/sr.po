@@ -5,24 +5,24 @@ msgid ""
 msgstr ""
 "Project-Id-Version: trunk\n"
 "Report-Msgid-Bugs-To: $MSGID_BUGS_ADDRESS\n"
-"POT-Creation-Date: 2012-12-04 13:32+0100\n"
-"PO-Revision-Date: 2013-01-10 00:57+0000\n"
+"POT-Creation-Date: 2013-06-21 01:05+0200\n"
+"PO-Revision-Date: 2013-06-26 06:33+0000\n"
 "Last-Translator: Саша Петровић <salepetronije@gmail.com>\n"
 "Language-Team: српски <xfce-i18n@xfce.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-01-11 04:36+0000\n"
-"X-Generator: Launchpad (build 16412)\n"
+"X-Launchpad-Export-Date: 2013-06-27 05:36+0000\n"
+"X-Generator: Launchpad (build 16681)\n"
 "Language: \n"
 
 #: src/e_mod_config.c:42
 msgid "Population Settings"
-msgstr "Подешавања становништва"
+msgstr ""
 
 #: src/e_mod_config.c:92
 msgid "Number of penguins:"
-msgstr "Број пингвина:"
+msgstr "Број пингвина"
 
 #: src/e_mod_config.c:94 src/e_mod_config.c:104
 #, c-format
@@ -31,7 +31,7 @@ msgstr "%1.0f"
 
 #: src/e_mod_config.c:97
 msgid "Zoom factor:"
-msgstr "Чинилац увећања:"
+msgstr "Множилац увећања"
 
 #: src/e_mod_config.c:99
 #, c-format
@@ -44,7 +44,7 @@ msgstr "Провидност:"
 
 #: src/e_mod_config.c:108
 msgid "Select population:"
-msgstr "Изаберите становништво:"
+msgstr ""
 
 #: src/e_mod_main.c:61
 msgid "Look"

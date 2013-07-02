@@ -6,15 +6,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Penguins module\n"
 "Report-Msgid-Bugs-To: $MSGID_BUGS_ADDRESS\n"
-"POT-Creation-Date: 2012-12-04 13:32+0100\n"
-"PO-Revision-Date: 2012-12-07 12:59+0000\n"
-"Last-Translator: batden <Unknown>\n"
+"POT-Creation-Date: 2013-06-21 01:05+0200\n"
+"PO-Revision-Date: 2013-06-26 18:24+0000\n"
+"Last-Translator: Eliovir <Unknown>\n"
 "Language-Team: French <pourunmondesansgourou@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-12-08 05:06+0000\n"
-"X-Generator: Launchpad (build 16341)\n"
+"X-Launchpad-Export-Date: 2013-06-27 05:36+0000\n"
+"X-Generator: Launchpad (build 16681)\n"
 "X-Poedit-Country: FRANCE\n"
 "Language: \n"
 "X-Poedit-Language: French\n"
@@ -26,7 +26,7 @@ msgstr "Paramètres de population"
 
 #: src/e_mod_config.c:92
 msgid "Number of penguins:"
-msgstr "Nombre de pingouins :"
+msgstr "Nombre de manchots :"
 
 #: src/e_mod_config.c:94 src/e_mod_config.c:104
 #, c-format
@@ -35,7 +35,7 @@ msgstr "%1.0f"
 
 #: src/e_mod_config.c:97
 msgid "Zoom factor:"
-msgstr "Facteur de zoom :"
+msgstr "Niveau de zoom :"
 
 #: src/e_mod_config.c:99
 #, c-format
@@ -48,12 +48,12 @@ msgstr "Transparence :"
 
 #: src/e_mod_config.c:108
 msgid "Select population:"
-msgstr "Sélection de la population :"
+msgstr "Choisissez la population :"
 
 #: src/e_mod_main.c:61
 msgid "Look"
-msgstr "Aspect"
+msgstr "Apparence"
 
 #: src/e_mod_main.c:62
 msgid "Penguins"
-msgstr "Pingouins"
+msgstr "Manchots"
