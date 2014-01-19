@@ -42,7 +42,6 @@ struct _Config
 struct _Population
 {
    E_Module *module;
-   Eina_List *cons;
    Evas *canvas;
    Ecore_Animator *animator;
    Eina_List *penguins;

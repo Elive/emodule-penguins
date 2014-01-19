@@ -18,10 +18,9 @@ static void _free_data(E_Config_Dialog *cfd, E_Config_Dialog_Data *cfdata);
 static Evas_Object *_basic_create_widgets(E_Config_Dialog *cfd, Evas *evas, E_Config_Dialog_Data *cfdata);
 static int _basic_apply_data(E_Config_Dialog *cfd, E_Config_Dialog_Data *cfdata);
 static void _fill_data(Population *pop, E_Config_Dialog_Data *cfdata);
-//static E_Config_Dialog *
-//_pager_config_dialog(E_Container *con, const char *params)
+
 E_Config_Dialog *
-e_int_config_penguins_module(E_Container *con, const char *params)
+e_int_config_penguins_module(E_Comp *comp, const char *params)
 {
    E_Config_Dialog *cfd;
    E_Config_Dialog_View *v;
@@ -38,7 +37,7 @@ e_int_config_penguins_module(E_Container *con, const char *params)
    v->basic.create_widgets = _basic_create_widgets;
 
    snprintf(buf, sizeof(buf), "%s/e-module-penguins.edj", e_module_dir_get(pop->module));
-   cfd = e_config_dialog_new(con,
+   cfd = e_config_dialog_new(comp,
 			     D_("Population Settings"),
 			     "Penguins", "appearance/penguins",
 			     buf, 0, v, pop);
@@ -149,7 +148,6 @@ _basic_apply_data(E_Config_Dialog *cfd, E_Config_Dialog_Data *cfdata)
    Population *pop;
 
    pop = cfd->data;
-   e_border_button_bindings_ungrab_all();
    
    pop->conf->penguins_count = cfdata->penguins_count;
    pop->conf->zoom = cfdata->zoom;
@@ -159,7 +157,6 @@ _basic_apply_data(E_Config_Dialog *cfd, E_Config_Dialog_Data *cfdata)
    pop->conf->theme = eina_stringshare_ref(cfdata->theme);
 
    e_config_save_queue();
-   e_border_button_bindings_grab_all();
 
    _penguins_cb_config_updated(pop);
    return 1;

@@ -27,7 +27,6 @@ static void       _start_falling_at(Penguin *tux, int at_x);
 static void       _start_flying_at(Penguin *tux, int at_y);
 static void       _start_splatting_at(Penguin *tux, int at_y);
 static void       _start_custom_at(Penguin *tux, int at_y);
-//static void     _win_shape_change(void *data, E_Container_Shape *es, E_Container_Shape_Change ch);
 static void       _reborn(Penguin *tux);
 static void       _cb_custom_end(void *data, Evas_Object *o, const char *emi, const char *src);
 static void       _cb_click_l (void *data, Evas_Object *o, const char *emi, const char *src);
@@ -132,7 +131,7 @@ _population_init(E_Module *m)
       pop->conf->theme = eina_stringshare_add(buf);
    }
 
-   managers = e_manager_list();
+   /*managers = e_manager_list();
    for (l = managers; l; l = l->next)
    {
       E_Manager *man;
@@ -147,24 +146,24 @@ _population_init(E_Module *m)
          //        con->name, con->x, con->y, con->w, con->h);
          pop->cons = eina_list_append(pop->cons, con);
          pop->canvas = con->bg_evas;
-         //e_container_shape_change_callback_add(con, _win_shape_change, NULL);
-/*          for (l3 = e_container_shape_list_get(con); l3; l3 = l3->next)
-         {
-            E_Container_Shape *es;
-            int x, y, w, h;
-            es = l3->data;   
-            if (es->visible)
-            {
-               e_container_shape_geometry_get(es, &x, &y, &w, &h);
-               printf("E_shape: [%d] x:%d y:%d w:%d h:%d\n", es->visible, x, y, w, h);
-            }
-         } */
-      }
-   }
 
+      }
+   }*/
+   // E_Manager *man;
+   // EINA_LIST_FOREACH(e_manager_list(), l, man)
+   // {
+      // printf("PENGUINS: E_manager found\n");
+   // }
+   pop->canvas = e_manager_current_get()->comp->evas;
+   
+   
    evas_output_viewport_get(pop->canvas, NULL, NULL, &pop->width, &pop->height);
 
-   //printf("PENGUINS: Get themes list\n");
+   // e_comp_util_wins_print(e_manager_current_get()->comp);
+
+  
+   
+   printf("PENGUINS: Get themes list\n");
    Eina_List *files;
    char *filename;
    char *name;
@@ -180,7 +179,7 @@ _population_init(E_Module *m)
          name = edje_file_data_get(buf, "PopulationName");
          if (name)
          {
-            //printf("PENGUINS: Theme found: %s (%s)\n", filename, name);
+            printf("PENGUINS: Theme found: %s (%s)\n", filename, name);
             pop->themes = eina_list_append(pop->themes, strdup(buf));
          }
       }
@@ -189,8 +188,8 @@ _population_init(E_Module *m)
 
    _theme_load(pop);
    _population_load(pop);
-
    pop->animator = ecore_animator_add(_cb_animator, pop);
+
 
    return pop;
 }
@@ -251,13 +250,13 @@ _population_shutdown(Population *pop)
 {
    //printf("PENGUINS: KILL 'EM ALL\n");
 
-   while (pop->cons)
+  /* while (pop->cons)
    {
       E_Container *con;
 
       con = pop->cons->data;
       pop->cons = eina_list_remove_list(pop->cons, pop->cons);
-   }
+   }*/
 
    _population_free(pop);
 
@@ -416,7 +415,7 @@ _population_load(Population *pop)
 
    evas_output_viewport_get(pop->canvas, &xx, &yy, &ww, &hh);
 
-   //printf("PENGUINS: Creating %d penguins\n", pop->conf->penguins_count);
+   printf("PENGUINS: Creating %d penguins\n", pop->conf->penguins_count);
    for (i = 0; i < pop->conf->penguins_count; i++)
    {
       tux = malloc(sizeof(Penguin));
@@ -680,7 +679,45 @@ static int
 _is_inside_any_win(Population *pop, int x, int y, int ret_value)
 {
    Eina_List *l;
-   E_Container *con;
+   E_Client *ec;
+
+   // EINA_LIST_FOREACH(e_manager_current_get()->comp->clients, l, ec)
+   // {
+      // printf("PENGUINS: COMP EC%s:  %p - '%s:%s' || %d,%d @ %dx%d\n", ec->focused ? "*" : "", ec, ec->icccm.name, ec->icccm.class, ec->x, ec->y, ec->w, ec->h);
+   // }
+
+   E_CLIENT_FOREACH(e_manager_current_get()->comp, ec)
+   {
+      // printf("PENGUINS: COMP EC%s:  %p - '%s:%s' || %d,%d @ %dx%d\n", ec->focused ? "*" : "", ec, ec->icccm.name, ec->icccm.class, ec->x, ec->y, ec->w, ec->h);
+      if ((ec->w > 1) && (ec->h > 1))
+      {
+         if ( ((x > ec->x) && (x < (ec->x + ec->w))) &&
+              ((y > ec->y) && (y < (ec->y + ec->h))) )
+         {
+            switch (ret_value)
+            {
+               case _RET_NONE_VALUE:
+                  return 1;
+                  break;
+               case _RET_RIGHT_VALUE:
+                  return ec->x + ec->w;
+                  break;
+               case _RET_BOTTOM_VALUE:
+                  return ec->y + ec->h;
+                  break;
+               case _RET_TOP_VALUE:
+                  return ec->y;
+                  break;
+               case _RET_LEFT_VALUE:
+                  return ec->x;
+                  break;
+               default:
+                  return 1;
+            }
+         }
+      }
+   }
+   /*E_Container *con;
 
    con = e_container_current_get(e_manager_current_get());
 
@@ -718,7 +755,7 @@ _is_inside_any_win(Population *pop, int x, int y, int ret_value)
             }
          }
       }
-   }
+   }*/
    return 0;
 }
 
