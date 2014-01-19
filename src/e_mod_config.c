@@ -1,6 +1,7 @@
 #include <e.h>
 #include "e_mod_main.h"
 #include "e_mod_config.h"
+#include "e_mod_penguins.h"
 #include "config.h"
 
 
