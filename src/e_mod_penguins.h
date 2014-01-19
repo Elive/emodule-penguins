@@ -2,22 +2,6 @@
 #define E_MOD_PENGUINS_H
 
 
-#define _RET_NONE_VALUE 0
-#define _RET_BOTTOM_VALUE 1
-#define _RET_TOP_VALUE 2
-#define _RET_LEFT_VALUE 3
-#define _RET_RIGHT_VALUE 4
-
-#define ID_WALKER 1
-#define ID_FALLER 2
-#define ID_CLIMBER 3
-#define ID_FLOATER 4
-#define ID_SPLATTER 5
-#define ID_FLYER 6
-#define ID_BOMBER 7
-#define ID_ANGEL 8
-
-
 typedef struct _Penguins_Config
 {
    double zoom;
@@ -76,8 +60,9 @@ typedef struct _Penguins_Actor
 } Penguins_Actor;
 
 
-Penguins_Population *population_init(E_Module *m);
-void                 population_shutdown(Penguins_Population *pop);
+Penguins_Population *penguins_init(E_Module *m);
+void                 penguins_shutdown(Penguins_Population *pop);
+void                 penguins_reload(Penguins_Population *pop);
 
 
 #endif

@@ -12,15 +12,33 @@
 #define FLYER_PROB 1000 // every n animation cicle
 #define CUSTOM_PROB 600 // every n animation cicle (def: 600)
 
+// type of return for _is_inside_any_win()
+#define RETURN_NONE_VALUE 0
+#define RETURN_BOTTOM_VALUE 1
+#define RETURN_TOP_VALUE 2
+#define RETURN_LEFT_VALUE 3
+#define RETURN_RIGHT_VALUE 4
+
+// animation ids
+#define ID_WALKER 1
+#define ID_FALLER 2
+#define ID_CLIMBER 3
+#define ID_FLOATER 4
+#define ID_SPLATTER 5
+#define ID_FLYER 6
+#define ID_BOMBER 7
+#define ID_ANGEL 8
+
+
 //_RAND(prob) is true one time every prob
 #define _RAND(prob) ( ( random() % prob ) == 0 )
 
+
 /* module private routines */
 static int        _is_inside_any_win(Penguins_Population *pop, int x, int y, int ret_value);
-static Penguins_Population *_population_init(E_Module *m);
-static void       _population_shutdown(Penguins_Population *pop);
 static Eina_Bool  _cb_animator(void *data);
 static void       _population_load(Penguins_Population *pop);
+static void       _population_free(Penguins_Population *pop);
 static void       _theme_load(Penguins_Population *pop);
 static void       _start_walking_at(Penguins_Actor *tux, int at_y);
 static void       _start_climbing_at(Penguins_Actor *tux, int at_x);
@@ -38,16 +56,17 @@ static Eina_Bool        _delay_born(void *data);
 
 
 
-
 Penguins_Population *
-population_init(E_Module *m)
+penguins_init(E_Module *m)
 {
    Penguins_Population *pop;
    Eina_List *managers, *l, *l2;
+   char buf[PATH_MAX];
 
-   pop = calloc(1, sizeof(Penguins_Population));
+   pop = E_NEW(Penguins_Population, 1);
    if (!pop) return NULL;
 
+   // Init module persistent config
    pop->module = m;
    pop->conf_edd = E_CONFIG_DD_NEW("Penguins_Config", Penguins_Config);
 #undef T
@@ -62,8 +81,6 @@ population_init(E_Module *m)
    pop->conf = e_config_domain_load("module.penguins", pop->conf_edd);
    if (!pop->conf)
    {
-      char buf[4096];
-
       pop->conf = E_NEW(Penguins_Config, 1);
       pop->conf->zoom = 1;
       pop->conf->penguins_count = 3;
@@ -72,43 +89,15 @@ population_init(E_Module *m)
       pop->conf->theme = eina_stringshare_add(buf);
    }
 
-   /*managers = e_manager_list();
-   for (l = managers; l; l = l->next)
-   {
-      E_Manager *man;
-
-      man = l->data;
-
-      for (l2 = man->containers; l2; l2 = l2->next)
-      {
-         E_Container *con;
-         con = l2->data;
-         //printf("PENGUINS: E_container found: '%s' [x:%d y:%d w:%d h:%d]\n",
-         //        con->name, con->x, con->y, con->w, con->h);
-         pop->cons = eina_list_append(pop->cons, con);
-         pop->canvas = con->bg_evas;
-
-      }
-   }*/
-   // E_Manager *man;
-   // EINA_LIST_FOREACH(e_manager_list(), l, man)
-   // {
-      // printf("PENGUINS: E_manager found\n");
-   // }
+   // get canvas size (TODO: multiple zones)
    pop->canvas = e_manager_current_get()->comp->evas;
-   
-   
    evas_output_viewport_get(pop->canvas, NULL, NULL, &pop->width, &pop->height);
 
-   // e_comp_util_wins_print(e_manager_current_get()->comp);
-
-  
-   
+   // Search available themes
    printf("PENGUINS: Get themes list\n");
    Eina_List *files;
    char *filename;
    char *name;
-   char buf[4096];
 
    snprintf(buf, sizeof(buf), "%s/themes", e_module_dir_get(m));
    files = ecore_file_ls(buf);
@@ -117,8 +106,7 @@ population_init(E_Module *m)
       if (eina_str_has_suffix(filename, ".edj"))
       {
          snprintf(buf, sizeof(buf), "%s/themes/%s", e_module_dir_get(m), filename);
-         name = edje_file_data_get(buf, "PopulationName");
-         if (name)
+         if (name = edje_file_data_get(buf, "PopulationName"))
          {
             printf("PENGUINS: Theme found: %s (%s)\n", filename, name);
             pop->themes = eina_list_append(pop->themes, strdup(buf));
@@ -127,53 +115,74 @@ population_init(E_Module *m)
       free(filename);
    }
 
+   // bootstrap
    _theme_load(pop);
    _population_load(pop);
    pop->animator = ecore_animator_add(_cb_animator, pop);
 
-
    return pop;
+}
+
+void
+penguins_shutdown(Penguins_Population *pop)
+{
+   printf("PENGUINS: KILL 'EM ALL\n");
+
+   _population_free(pop);
+
+   E_FREE_FUNC(pop->animator, ecore_animator_del);
+   E_FREE_LIST(pop->themes, free);
+
+   E_FREE_FUNC(pop->conf->theme, eina_stringshare_del);
+   E_FREE(pop->conf);
+   E_CONFIG_DD_FREE(pop->conf_edd);
+
+   E_FREE(pop);
+}
+
+void
+penguins_reload(Penguins_Population *pop)
+{
+   _population_free(pop);
+   _theme_load(pop);
+   _population_load(pop);
 }
 
 /* module private routines */
 Eina_Bool 
 _action_free(const Eina_Hash *hash, const void *key, void *data, void *fdata)
 {
-   Penguins_Action *a;
-   a = data;
+   Penguins_Action *a = data;
+
    //printf("PENGUINS: Free Action '%s' :(\n", a->name);
    E_FREE(a->name);
    E_FREE(a);
-   return 1;
+
+   return EINA_TRUE;
 }
 
 static void
 _population_free(Penguins_Population *pop)
 {
+   Penguins_Actor *tux;
+   Penguins_Custom_Action *act;
+
    //printf("PENGUINS: Free Population\n");
 
-   while (pop->penguins)
+   EINA_LIST_FREE(pop->penguins, tux)
    {
-      Penguins_Actor *tux;
       //printf("PENGUINS: Free TUX :)\n");
-      tux = pop->penguins->data;
-      evas_object_del(tux->obj);
-      pop->penguins = eina_list_remove_list(pop->penguins, pop->penguins);
+      E_FREE_FUNC(tux->obj, evas_object_del);
       E_FREE(tux);
-      tux = NULL;
    }
-   while (pop->customs)
-   {
-      Penguins_Custom_Action *cus;
-      //printf("PENGUINS: Free Custom Action\n");
-      cus = pop->customs->data;
-      E_FREE(cus->name);
-      E_FREE(cus->left_program_name);
-      E_FREE(cus->right_program_name);
 
-      pop->customs = eina_list_remove_list(pop->customs, pop->customs);
-      E_FREE(cus);
-      cus = NULL;
+   EINA_LIST_FREE(pop->customs, act)
+   {
+      //printf("PENGUINS: Free Custom Action\n");
+      E_FREE(act->name);
+      E_FREE(act->left_program_name);
+      E_FREE(act->right_program_name);
+      E_FREE(act);
    }
 
    eina_hash_foreach(pop->actions, _action_free, NULL);
@@ -181,57 +190,7 @@ _population_free(Penguins_Population *pop)
    pop->actions = NULL;
 }
 
-/* static void
-_real_population_shutdown(Penguins_Population *pop)
-{
 
-} */
-
-void
-population_shutdown(Penguins_Population *pop)
-{
-   //printf("PENGUINS: KILL 'EM ALL\n");
-
-  /* while (pop->cons)
-   {
-      E_Container *con;
-
-      con = pop->cons->data;
-      pop->cons = eina_list_remove_list(pop->cons, pop->cons);
-   }*/
-
-   _population_free(pop);
-
-   if (pop->animator)
-     ecore_animator_del(pop->animator);
-
-   while (pop->themes)
-   {
-      //printf("PENGUINS: Free Theme '%s'\n", (char *)pop->themes->data);
-      pop->themes = eina_list_remove_list(pop->themes, pop->themes);
-   }
-
-   if (pop->conf->theme) eina_stringshare_del(pop->conf->theme);
-   E_FREE(pop->conf);
-   E_CONFIG_DD_FREE(pop->conf_edd);
-
-   E_FREE(pop);
-   pop = NULL;
-}
-
-void
-_penguins_cb_config_updated(void *data)
-{
-   Penguins_Population *pop;
-
-   pop = (Penguins_Population *)data;
-   if (!pop) return;
-
-   _population_free(pop);
-
-   _theme_load(pop);
-   _population_load(pop);
-}
 
 static Penguins_Action *
 _load_action(Penguins_Population *pop, const char *filename, char *name, int id)
@@ -240,12 +199,10 @@ _load_action(Penguins_Population *pop, const char *filename, char *name, int id)
    char *data;
  
    data = edje_file_data_get(filename, name);
-   if (!data) 
-      return NULL;
+   if (!data) return NULL;
 
-   act = calloc(1, sizeof(Penguins_Action));
-   if (!act)
-      return NULL;
+   act = E_NEW(Penguins_Action, 1);
+   if (!act) return NULL;
 
    act->name = strdup(name);
    sscanf(data, "%d %d %d", &act->w, &act->h, &act->speed);
@@ -270,13 +227,11 @@ _load_custom_action(Penguins_Population *pop, const char *filename, char *name)
    char *data;
    char buf[25];
 
-   data = edje_file_data_get(filename, name);
-   if (!data) 
-      return NULL;
+   data = edje_file_data_get(filename, name); // TODO free data??
+   if (!data) return NULL;
 
-   c = calloc(1, sizeof(Penguins_Custom_Action));
-   if (!c)
-      return NULL;
+   c = E_NEW(Penguins_Custom_Action, 1);
+   if (!c) return NULL;
 
    c->name = strdup(name);
    sscanf(data, "%d %d %d %d %d %d", 
@@ -360,7 +315,8 @@ _population_load(Penguins_Population *pop)
    printf("PENGUINS: Creating %d penguins\n", pop->conf->penguins_count);
    for (i = 0; i < pop->conf->penguins_count; i++)
    {
-      tux = malloc(sizeof(Penguins_Actor));
+      tux = E_NEW(Penguins_Actor, 1);
+      if (!tux) return;
 
       o = edje_object_add(pop->canvas);
       edje_object_file_set(o, pop->conf->theme, "anims");
@@ -452,7 +408,7 @@ _cb_animator(void *data)
          if (!_is_inside_any_win(pop,
                (int)tux->x+(tux->action->w/2),
                (int)tux->y+tux->action->h+1,
-               _RET_NONE_VALUE)
+               RETURN_NONE_VALUE)
             && (int)tux->y+tux->action->h+1 < pop->height
             )
          {
@@ -468,7 +424,7 @@ _cb_animator(void *data)
          if ((touch = _is_inside_any_win(pop,
                         (int)tux->x+(tux->action->w/2),
                         (int)tux->y + tux->action->h,
-                        _RET_TOP_VALUE)))
+                        RETURN_TOP_VALUE)))
          {
             if (( (int)tux->y - tux->faller_h)  > MAX_FALLER_HEIGHT)
                _start_splatting_at(tux, touch);
@@ -490,7 +446,7 @@ _cb_animator(void *data)
          if ((touch = _is_inside_any_win(pop,
                         (int)tux->x+(tux->action->w/2),
                         (int)tux->y + tux->action->h,
-                        _RET_TOP_VALUE)
+                        RETURN_TOP_VALUE)
             ))
             _start_walking_at(tux, touch);
          else if (( (int)tux->y + tux->action->h ) > pop->height)
@@ -513,7 +469,7 @@ _cb_animator(void *data)
             //~ printf("FT: %f\n", edje_frametime_get());
             //~ printf("FT: %f\n", pop->frame_speed);
             tux->x -= ((double)tux->action->speed * ecore_animator_frametime_get());
-            if ((touch = _is_inside_any_win(pop, (int)tux->x , (int)tux->y, _RET_RIGHT_VALUE)) ||
+            if ((touch = _is_inside_any_win(pop, (int)tux->x , (int)tux->y, RETURN_RIGHT_VALUE)) ||
                 tux->x < 0)
             {
                if (_RAND(CLIMBER_PROB))
@@ -525,14 +481,14 @@ _cb_animator(void *data)
                }
             }
             if ((tux->y + tux->action->h) < pop->height)   
-               if (!_is_inside_any_win(pop, (int)tux->x+(tux->action->w/2) , (int)tux->y+tux->action->h+1, _RET_NONE_VALUE))
+               if (!_is_inside_any_win(pop, (int)tux->x+(tux->action->w/2) , (int)tux->y+tux->action->h+1, RETURN_NONE_VALUE))
                   _start_falling_at(tux, (int)tux->x+(tux->action->w/2));
          }
          // right
          else
          {
             tux->x += ((double)tux->action->speed * ecore_animator_frametime_get());
-            if ((touch = _is_inside_any_win(pop, (int)tux->x + tux->action->w, (int)tux->y, _RET_LEFT_VALUE)) ||
+            if ((touch = _is_inside_any_win(pop, (int)tux->x + tux->action->w, (int)tux->y, RETURN_LEFT_VALUE)) ||
                 (tux->x + tux->action->w) > pop->width)
             {
                if (_RAND(CLIMBER_PROB))
@@ -549,7 +505,7 @@ _cb_animator(void *data)
                }
             }
             if ((tux->y + tux->action->h) < pop->height)   
-               if (!_is_inside_any_win(pop, (int)tux->x+(tux->action->w/2), (int)tux->y+tux->action->h+1, _RET_NONE_VALUE))
+               if (!_is_inside_any_win(pop, (int)tux->x+(tux->action->w/2), (int)tux->y+tux->action->h+1, RETURN_NONE_VALUE))
                   _start_falling_at(tux, (int)tux->x+(tux->action->w/2));
          }
       }
@@ -582,7 +538,7 @@ _cb_animator(void *data)
             if (!_is_inside_any_win(pop,
                   (int)tux->x-1,
                   (int)tux->y+(tux->action->h/2),
-                  _RET_NONE_VALUE))
+                  RETURN_NONE_VALUE))
             {
                if (tux->x > 0)
                {
@@ -597,7 +553,7 @@ _cb_animator(void *data)
             if (!_is_inside_any_win(pop, 
                   (int)tux->x+tux->action->w+1, 
                   (int)tux->y+(tux->action->h/2), 
-                  _RET_NONE_VALUE))
+                  RETURN_NONE_VALUE))
             {
                if ((tux->x+tux->action->w) < pop->width)
                {
@@ -638,19 +594,19 @@ _is_inside_any_win(Penguins_Population *pop, int x, int y, int ret_value)
          {
             switch (ret_value)
             {
-               case _RET_NONE_VALUE:
+               case RETURN_NONE_VALUE:
                   return 1;
                   break;
-               case _RET_RIGHT_VALUE:
+               case RETURN_RIGHT_VALUE:
                   return ec->x + ec->w;
                   break;
-               case _RET_BOTTOM_VALUE:
+               case RETURN_BOTTOM_VALUE:
                   return ec->y + ec->h;
                   break;
-               case _RET_TOP_VALUE:
+               case RETURN_TOP_VALUE:
                   return ec->y;
                   break;
-               case _RET_LEFT_VALUE:
+               case RETURN_LEFT_VALUE:
                   return ec->x;
                   break;
                default:
@@ -935,37 +891,3 @@ _start_custom_at(Penguins_Actor *tux, int at_y)
    
 }
 
-/* static void
-_win_shape_change(void *data, E_Container_Shape *es, E_Container_Shape_Change ch)
-{
-   //printf("Shape changed\n");
-   int x, y, w, h;
-   
-   switch (ch)
-     {
-      case E_CONTAINER_SHAPE_ADD:
-	
-	break;
-      case E_CONTAINER_SHAPE_DEL:
-	
-	
-	break;
-      case E_CONTAINER_SHAPE_SHOW:
-	
-	break;
-      case E_CONTAINER_SHAPE_HIDE:
-	
-	break;
-      case E_CONTAINER_SHAPE_MOVE:
-	
-	break;
-      case E_CONTAINER_SHAPE_RESIZE:
-	
-	break;
-      case E_CONTAINER_SHAPE_RECTS:
-	
-	break;
-      default:
-	break;
-     }
-} */

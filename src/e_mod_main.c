@@ -31,7 +31,7 @@ e_modapi_init(E_Module *m)
    penguins_mod = m;
    e_module_delayed_set(m, 1);
 
-   return population_init(m);
+   return penguins_init(m);
 }
 
 EAPI int
@@ -45,7 +45,7 @@ e_modapi_shutdown(E_Module *m)
    if (pop = m->data)
    {
       E_FREE_FUNC(pop->config_dialog, e_object_del);
-      population_shutdown(pop);
+      penguins_shutdown(pop);
    }
    return 1;
 }
