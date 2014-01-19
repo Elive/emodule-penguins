@@ -16,43 +16,43 @@
 #define _RAND(prob) ( ( random() % prob ) == 0 )
 
 /* module private routines */
-static int        _is_inside_any_win(Population *pop, int x, int y, int ret_value);
-static Population *_population_init(E_Module *m);
-static void       _population_shutdown(Population *pop);
+static int        _is_inside_any_win(Penguins_Population *pop, int x, int y, int ret_value);
+static Penguins_Population *_population_init(E_Module *m);
+static void       _population_shutdown(Penguins_Population *pop);
 static Eina_Bool  _cb_animator(void *data);
-static void       _population_load(Population *pop);
-static void       _theme_load(Population *pop);
-static void       _start_walking_at(Penguin *tux, int at_y);
-static void       _start_climbing_at(Penguin *tux, int at_x);
-static void       _start_falling_at(Penguin *tux, int at_x);
-static void       _start_flying_at(Penguin *tux, int at_y);
-static void       _start_splatting_at(Penguin *tux, int at_y);
-static void       _start_custom_at(Penguin *tux, int at_y);
-static void       _reborn(Penguin *tux);
+static void       _population_load(Penguins_Population *pop);
+static void       _theme_load(Penguins_Population *pop);
+static void       _start_walking_at(Penguins_Actor *tux, int at_y);
+static void       _start_climbing_at(Penguins_Actor *tux, int at_x);
+static void       _start_falling_at(Penguins_Actor *tux, int at_x);
+static void       _start_flying_at(Penguins_Actor *tux, int at_y);
+static void       _start_splatting_at(Penguins_Actor *tux, int at_y);
+static void       _start_custom_at(Penguins_Actor *tux, int at_y);
+static void       _reborn(Penguins_Actor *tux);
 static void       _cb_custom_end(void *data, Evas_Object *o, const char *emi, const char *src);
 static void       _cb_click_l (void *data, Evas_Object *o, const char *emi, const char *src);
 static void       _cb_click_r (void *data, Evas_Object *o, const char *emi, const char *src);
 static void       _cb_click_c (void *data, Evas_Object *o, const char *emi, const char *src);
-static void       _start_bombing_at(Penguin *tux, int at_y);
+static void       _start_bombing_at(Penguins_Actor *tux, int at_y);
 static Eina_Bool        _delay_born(void *data);
 
 
 
 
-Population *
+Penguins_Population *
 population_init(E_Module *m)
 {
-   Population *pop;
+   Penguins_Population *pop;
    Eina_List *managers, *l, *l2;
 
-   pop = calloc(1, sizeof(Population));
+   pop = calloc(1, sizeof(Penguins_Population));
    if (!pop) return NULL;
 
    pop->module = m;
-   pop->conf_edd = E_CONFIG_DD_NEW("Penguins_Config", Config);
+   pop->conf_edd = E_CONFIG_DD_NEW("Penguins_Config", Penguins_Config);
 #undef T
 #undef D
-#define T Config
+#define T Penguins_Config
 #define D pop->conf_edd
    E_CONFIG_VAL(D, T, zoom, DOUBLE);
    E_CONFIG_VAL(D, T, penguins_count, INT);
@@ -64,7 +64,7 @@ population_init(E_Module *m)
    {
       char buf[4096];
 
-      pop->conf = E_NEW(Config, 1);
+      pop->conf = E_NEW(Penguins_Config, 1);
       pop->conf->zoom = 1;
       pop->conf->penguins_count = 3;
       pop->conf->alpha = 200;
@@ -139,7 +139,7 @@ population_init(E_Module *m)
 Eina_Bool 
 _action_free(const Eina_Hash *hash, const void *key, void *data, void *fdata)
 {
-   Action *a;
+   Penguins_Action *a;
    a = data;
    //printf("PENGUINS: Free Action '%s' :(\n", a->name);
    E_FREE(a->name);
@@ -148,13 +148,13 @@ _action_free(const Eina_Hash *hash, const void *key, void *data, void *fdata)
 }
 
 static void
-_population_free(Population *pop)
+_population_free(Penguins_Population *pop)
 {
    //printf("PENGUINS: Free Population\n");
 
    while (pop->penguins)
    {
-      Penguin *tux;
+      Penguins_Actor *tux;
       //printf("PENGUINS: Free TUX :)\n");
       tux = pop->penguins->data;
       evas_object_del(tux->obj);
@@ -164,7 +164,7 @@ _population_free(Population *pop)
    }
    while (pop->customs)
    {
-      Custom_Action *cus;
+      Penguins_Custom_Action *cus;
       //printf("PENGUINS: Free Custom Action\n");
       cus = pop->customs->data;
       E_FREE(cus->name);
@@ -182,13 +182,13 @@ _population_free(Population *pop)
 }
 
 /* static void
-_real_population_shutdown(Population *pop)
+_real_population_shutdown(Penguins_Population *pop)
 {
 
 } */
 
 void
-population_shutdown(Population *pop)
+population_shutdown(Penguins_Population *pop)
 {
    //printf("PENGUINS: KILL 'EM ALL\n");
 
@@ -222,9 +222,9 @@ population_shutdown(Population *pop)
 void
 _penguins_cb_config_updated(void *data)
 {
-   Population *pop;
+   Penguins_Population *pop;
 
-   pop = (Population *)data;
+   pop = (Penguins_Population *)data;
    if (!pop) return;
 
    _population_free(pop);
@@ -233,17 +233,17 @@ _penguins_cb_config_updated(void *data)
    _population_load(pop);
 }
 
-static Action*
-_load_action(Population *pop, const char *filename, char *name, int id)
+static Penguins_Action *
+_load_action(Penguins_Population *pop, const char *filename, char *name, int id)
 {
-   Action *act;
+   Penguins_Action *act;
    char *data;
  
    data = edje_file_data_get(filename, name);
    if (!data) 
       return NULL;
 
-   act = calloc(1, sizeof(Action));
+   act = calloc(1, sizeof(Penguins_Action));
    if (!act)
       return NULL;
 
@@ -263,10 +263,10 @@ _load_action(Population *pop, const char *filename, char *name, int id)
    return act;
 }
 
-static Custom_Action*
-_load_custom_action(Population *pop, const char *filename, char *name)
+static Penguins_Custom_Action *
+_load_custom_action(Penguins_Population *pop, const char *filename, char *name)
 {
-   Custom_Action *c;
+   Penguins_Custom_Action *c;
    char *data;
    char buf[25];
 
@@ -274,7 +274,7 @@ _load_custom_action(Population *pop, const char *filename, char *name)
    if (!data) 
       return NULL;
 
-   c = calloc(1, sizeof(Custom_Action));
+   c = calloc(1, sizeof(Penguins_Custom_Action));
    if (!c)
       return NULL;
 
@@ -299,13 +299,13 @@ _load_custom_action(Population *pop, const char *filename, char *name)
 Eina_Bool
 hash_fn(const Eina_Hash *hash, const char *key, void *data, void *fdata)
 {
-   Action *a = data;
+   Penguins_Action *a = data;
    printf("PENGUINS: Load action: '%s' w:%d h:%d speed:%d\n", key, a->w, a->h, a->speed);
    return 1;
 }
 
 static void
-_theme_load(Population *pop)
+_theme_load(Penguins_Population *pop)
 {
    char *name;
    char buf[15];
@@ -348,19 +348,19 @@ _theme_load(Population *pop)
 }
 
 static void
-_population_load(Population *pop)
+_population_load(Penguins_Population *pop)
 {
    Evas_Object *o;
    Evas_Coord xx, yy, ww, hh;
    int i;
-   Penguin *tux;
+   Penguins_Actor *tux;
 
    evas_output_viewport_get(pop->canvas, &xx, &yy, &ww, &hh);
 
    printf("PENGUINS: Creating %d penguins\n", pop->conf->penguins_count);
    for (i = 0; i < pop->conf->penguins_count; i++)
    {
-      tux = malloc(sizeof(Penguin));
+      tux = malloc(sizeof(Penguins_Actor));
 
       o = edje_object_add(pop->canvas);
       edje_object_file_set(o, pop->conf->theme, "anims");
@@ -387,7 +387,7 @@ _population_load(Population *pop)
 static Eina_Bool
 _delay_born(void *data)
 {
-   Penguin *tux = data;
+   Penguins_Actor *tux = data;
 
    if (!tux) return ECORE_CALLBACK_CANCEL;
 
@@ -400,7 +400,7 @@ _delay_born(void *data)
 static void
 _cb_click_l (void *data, Evas_Object *o, const char *emi, const char *src)
 {
-   Penguin *tux = data;
+   Penguins_Actor *tux = data;
    //printf("Left-click on TUX !!!\n");
    _start_bombing_at(tux, tux->y + tux->action->h);
 }
@@ -417,7 +417,7 @@ _cb_click_c (void *data, Evas_Object *o, const char *emi, const char *src)
 }
 
 static void
-_reborn(Penguin *tux)
+_reborn(Penguins_Actor *tux)
 {
    //printf("PENGUINS: Reborn :)\n");
    tux->reverse = random() % (2);
@@ -434,13 +434,13 @@ _reborn(Penguin *tux)
 static Eina_Bool
 _cb_animator(void *data)
 {
-   Population *pop;
+   Penguins_Population *pop;
    Eina_List *l;
 
    pop = data;
    for (l = pop->penguins; l; l = l->next)
    {
-      Penguin *tux;
+      Penguins_Actor *tux;
       int touch;
       tux = l->data;
       
@@ -618,7 +618,7 @@ _cb_animator(void *data)
 }
 
 static int
-_is_inside_any_win(Population *pop, int x, int y, int ret_value)
+_is_inside_any_win(Penguins_Population *pop, int x, int y, int ret_value)
 {
    Eina_List *l;
    E_Client *ec;
@@ -702,7 +702,7 @@ _is_inside_any_win(Population *pop, int x, int y, int ret_value)
 }
 
 static void 
-_start_walking_at(Penguin *tux, int at_y)
+_start_walking_at(Penguins_Actor *tux, int at_y)
 {
    //printf("PENGUINS: Start walking...at %d\n", at_y);
    tux->action = eina_hash_find(tux->pop->actions, "Walker");
@@ -718,7 +718,7 @@ _start_walking_at(Penguin *tux, int at_y)
 }
 
 static void 
-_start_climbing_at(Penguin *tux, int at_x)
+_start_climbing_at(Penguins_Actor *tux, int at_x)
 {
    //printf("PENGUINS: Start climbing...at: %d\n", at_x);
    tux->action = eina_hash_find(tux->pop->actions, "Climber");
@@ -737,7 +737,7 @@ _start_climbing_at(Penguin *tux, int at_x)
 }
 
 static void 
-_start_falling_at(Penguin *tux, int at_x)
+_start_falling_at(Penguins_Actor *tux, int at_x)
 {
    if (_RAND(FALLING_PROB))
    {
@@ -778,7 +778,7 @@ _start_falling_at(Penguin *tux, int at_x)
 }
 
 static void 
-_start_flying_at(Penguin *tux, int at_y)
+_start_flying_at(Penguins_Actor *tux, int at_y)
 {
    tux->action = eina_hash_find(tux->pop->actions, "Flyer");
    evas_object_resize(tux->obj, tux->action->w, tux->action->h);
@@ -790,7 +790,7 @@ _start_flying_at(Penguin *tux, int at_y)
 }
 
 static void 
-_start_angel_at(Penguin *tux, int at_y)
+_start_angel_at(Penguins_Actor *tux, int at_y)
 {
    tux->x = tux->x + (tux->action->w /2);
    tux->action = eina_hash_find(tux->pop->actions, "Angel");
@@ -812,13 +812,13 @@ _start_angel_at(Penguin *tux, int at_y)
 static void 
 _cb_splatter_end(void *data, Evas_Object *o, const char *emi, const char *src)
 {
-   Penguin *tux = data;
+   Penguins_Actor *tux = data;
    edje_object_signal_callback_del(o,"splatting_done","edje", _cb_splatter_end);
    _start_angel_at(tux, tux->y+tux->action->h+10);
 }
 
 static void 
-_start_splatting_at(Penguin *tux, int at_y)
+_start_splatting_at(Penguins_Actor *tux, int at_y)
 {
   // printf("PENGUINS: Start splatting...\n");
    evas_object_hide(tux->obj);
@@ -841,13 +841,13 @@ _start_splatting_at(Penguin *tux, int at_y)
 static void 
 _cb_bomber_end(void *data, Evas_Object *o, const char *emi, const char *src)
 {
-   Penguin *tux = data;
+   Penguins_Actor *tux = data;
    edje_object_signal_callback_del(o,"bombing_done","edje", _cb_bomber_end);
    _start_angel_at(tux, tux->y);
 }
 
 static void 
-_start_bombing_at(Penguin *tux, int at_y)
+_start_bombing_at(Penguins_Actor *tux, int at_y)
 {
    //printf("PENGUINS: Start bombing at %d...\n", at_y);
    if (tux->action && (
@@ -876,7 +876,7 @@ _start_bombing_at(Penguin *tux, int at_y)
 static void 
 _cb_custom_end(void *data, Evas_Object *o, const char *emi, const char *src)
 {
-   Penguin* tux = data;
+   Penguins_Actor* tux = data;
    //printf("PENGUINS: Custom action end.\n");
    if (!tux->custom)
       return;
@@ -898,7 +898,7 @@ _cb_custom_end(void *data, Evas_Object *o, const char *emi, const char *src)
 }
 
 static void 
-_start_custom_at(Penguin *tux, int at_y)
+_start_custom_at(Penguins_Actor *tux, int at_y)
 {
    int ran;
 

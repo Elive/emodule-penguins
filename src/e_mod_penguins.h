@@ -2,7 +2,6 @@
 #define E_MOD_PENGUINS_H
 
 
-
 #define _RET_NONE_VALUE 0
 #define _RET_BOTTOM_VALUE 1
 #define _RET_TOP_VALUE 2
@@ -18,21 +17,16 @@
 #define ID_BOMBER 7
 #define ID_ANGEL 8
 
-typedef struct _Config Config;
-typedef struct _Population Population;
-typedef struct _Penguin Penguin;
-typedef struct _Action Action;
-typedef struct _Custom_Action Custom_Action;
 
-struct _Config
+typedef struct _Penguins_Config
 {
    double zoom;
    int penguins_count;
    const char *theme;
    int alpha;
-};
+} Penguins_Config;
 
-struct _Population
+typedef struct _Penguins_Population
 {
    E_Module *module;
    Evas *canvas;
@@ -44,20 +38,20 @@ struct _Population
    Eina_List *themes;
 
    E_Config_DD *conf_edd;
-   Config *conf;
+   Penguins_Config *conf;
    Evas_Coord width, height;
    E_Config_Dialog *config_dialog;
-};
+} Penguins_Population;
 
-struct _Action
+typedef struct _Penguins_Action
 {
    char *name;
    int id;
    Evas_Coord w,h;
    int speed;
-};
+} Penguins_Action;
 
-struct _Custom_Action
+typedef struct _Penguins_Custom_Action
 {
    char *name;
    Evas_Coord w,h;
@@ -67,33 +61,23 @@ struct _Custom_Action
    int r_max;
    char *left_program_name;
    char *right_program_name;
-};
+} Penguins_Custom_Action;
 
-struct _Penguin
+typedef struct _Penguins_Actor
 {
    Evas_Object *obj;
    int reverse;
    double x, y;
    int faller_h;
    int r_count;
-   Action *action;
-   Custom_Action *custom;
-   Population *pop;
-};
+   Penguins_Action *action;
+   Penguins_Custom_Action *custom;
+   Penguins_Population *pop;
+} Penguins_Actor;
 
 
-Population *population_init(E_Module *m);
-void        population_shutdown(Population *pop);
+Penguins_Population *population_init(E_Module *m);
+void                 population_shutdown(Penguins_Population *pop);
 
-
-// extern E_Module *penguins_mod;
-
-// EAPI extern E_Module_Api e_modapi;
-
-// EAPI void *e_modapi_init(E_Module *m);
-// EAPI int e_modapi_shutdown(E_Module *m);
-// EAPI int e_modapi_save(E_Module *m);
-
-// void _penguins_cb_config_updated(void *data);
 
 #endif

@@ -18,7 +18,7 @@ static void *_create_data(E_Config_Dialog *cfd);
 static void _free_data(E_Config_Dialog *cfd, E_Config_Dialog_Data *cfdata);
 static Evas_Object *_basic_create_widgets(E_Config_Dialog *cfd, Evas *evas, E_Config_Dialog_Data *cfdata);
 static int _basic_apply_data(E_Config_Dialog *cfd, E_Config_Dialog_Data *cfdata);
-static void _fill_data(Population *pop, E_Config_Dialog_Data *cfdata);
+static void _fill_data(Penguins_Population *pop, E_Config_Dialog_Data *cfdata);
 
 E_Config_Dialog *
 e_int_config_penguins_module(E_Comp *comp, const char *params)
@@ -26,7 +26,7 @@ e_int_config_penguins_module(E_Comp *comp, const char *params)
    E_Config_Dialog *cfd;
    E_Config_Dialog_View *v;
    char buf[4096];
-   Population *pop;
+   Penguins_Population *pop;
 
    pop = penguins_mod->data;
    if (e_config_dialog_find("Penguins", "appearance/penguins")) return NULL;
@@ -47,7 +47,7 @@ e_int_config_penguins_module(E_Comp *comp, const char *params)
 }
 
 static void
-_fill_data(Population *pop, E_Config_Dialog_Data *cfdata)
+_fill_data(Penguins_Population *pop, E_Config_Dialog_Data *cfdata)
 {
    cfdata->penguins_count = pop->conf->penguins_count;
    cfdata->zoom = pop->conf->zoom;
@@ -59,7 +59,7 @@ static void *
 _create_data(E_Config_Dialog *cfd)
 {
    E_Config_Dialog_Data *cfdata;
-   Population *pop;
+   Penguins_Population *pop;
 
    pop = cfd->data;
    cfdata = E_NEW(E_Config_Dialog_Data, 1);
@@ -71,7 +71,7 @@ _create_data(E_Config_Dialog *cfd)
 static void
 _free_data(E_Config_Dialog *cfd, E_Config_Dialog_Data *cfdata)
 {
-   Population *pop;
+   Penguins_Population *pop;
 
    pop = cfd->data;
    pop->config_dialog = NULL;
@@ -84,7 +84,7 @@ static Evas_Object *
 _basic_create_widgets(E_Config_Dialog *cfd, Evas *evas, E_Config_Dialog_Data *cfdata)
 {
    Evas_Object *o, *ob, *ol;
-   Population *pop;
+   Penguins_Population *pop;
 
    pop = cfd->data;
    o = e_widget_list_add(evas, 0, 0);
@@ -146,7 +146,7 @@ _basic_create_widgets(E_Config_Dialog *cfd, Evas *evas, E_Config_Dialog_Data *cf
 static int
 _basic_apply_data(E_Config_Dialog *cfd, E_Config_Dialog_Data *cfdata)
 {
-   Population *pop;
+   Penguins_Population *pop;
 
    pop = cfd->data;
    

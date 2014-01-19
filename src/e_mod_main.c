@@ -37,7 +37,7 @@ e_modapi_init(E_Module *m)
 EAPI int
 e_modapi_shutdown(E_Module *m)
 {
-   Population *pop;
+   Penguins_Population *pop;
 
    e_configure_registry_item_del("appearance/penguins");
    e_configure_registry_category_del("appearance");
@@ -53,7 +53,7 @@ e_modapi_shutdown(E_Module *m)
 EAPI int
 e_modapi_save(E_Module *m)
 {
-   Population *pop;
+   Penguins_Population *pop;
 
    pop = m->data;
    if (!pop) return 1;
