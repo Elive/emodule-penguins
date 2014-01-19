@@ -11,26 +11,12 @@
 #endif
 
 
-// typedef struct _Config Config;
-// 
-// 
-// struct _Config
-// {
-   // double zoom;
-   // int penguins_count;
-   // const char *theme;
-   // int alpha;
-// };
-
-
-
-extern E_Module *penguins_mod;
 
 EAPI extern E_Module_Api e_modapi;
-
 EAPI void *e_modapi_init(E_Module *m);
 EAPI int e_modapi_shutdown(E_Module *m);
 EAPI int e_modapi_save(E_Module *m);
 
+extern E_Module *penguins_mod;
 
 #endif
