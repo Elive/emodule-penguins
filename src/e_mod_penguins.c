@@ -60,7 +60,6 @@ Penguins_Population *
 penguins_init(E_Module *m)
 {
    Penguins_Population *pop;
-   Eina_List *managers, *l, *l2;
    char buf[PATH_MAX];
 
    pop = E_NEW(Penguins_Population, 1);
@@ -106,10 +105,11 @@ penguins_init(E_Module *m)
       if (eina_str_has_suffix(filename, ".edj"))
       {
          snprintf(buf, sizeof(buf), "%s/themes/%s", e_module_dir_get(m), filename);
-         if (name = edje_file_data_get(buf, "PopulationName"))
+         if ((name = edje_file_data_get(buf, "PopulationName")))
          {
             printf("PENGUINS: Theme found: %s (%s)\n", filename, name);
             pop->themes = eina_list_append(pop->themes, strdup(buf));
+            free(name);
          }
       }
       free(filename);

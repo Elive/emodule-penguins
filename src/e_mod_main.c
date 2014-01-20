@@ -42,7 +42,7 @@ e_modapi_shutdown(E_Module *m)
    e_configure_registry_item_del("appearance/penguins");
    e_configure_registry_category_del("appearance");
 
-   if (pop = m->data)
+   if ((pop = m->data))
    {
       E_FREE_FUNC(pop->config_dialog, e_object_del);
       penguins_shutdown(pop);
