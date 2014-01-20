@@ -569,79 +569,47 @@ _cb_animator(void *data)
 static int
 _is_inside_any_win(Penguins_Population *pop, int x, int y, int ret_value)
 {
-   Eina_List *l;
-   E_Client *ec;
+   Evas_Object *o;
 
-   // EINA_LIST_FOREACH(e_manager_current_get()->comp->clients, l, ec)
-   // {
-      // printf("PENGUINS: COMP EC%s:  %p - '%s:%s' || %d,%d @ %dx%d\n", ec->focused ? "*" : "", ec, ec->icccm.name, ec->icccm.class, ec->x, ec->y, ec->w, ec->h);
-   // }
+   // printf("/***************/ \n");
 
-   E_CLIENT_FOREACH(e_manager_current_get()->comp, ec)
+   o = evas_object_top_get(pop->canvas);
+   while (o)
    {
-      // printf("PENGUINS: COMP EC%s:  %p - '%s:%s' || %d,%d @ %dx%d\n", ec->focused ? "*" : "", ec, ec->icccm.name, ec->icccm.class, ec->x, ec->y, ec->w, ec->h);
-      if ((ec->w > 1) && (ec->h > 1))
+      int xx, yy, ww, hh;
+
+      if (evas_object_data_get(o, "comp_object") && evas_object_visible_get(o))
       {
-         if ( ((x > ec->x) && (x < (ec->x + ec->w))) &&
-              ((y > ec->y) && (y < (ec->y + ec->h))) )
+         evas_object_geometry_get(o, &xx, &yy, &ww, &hh);
+         if ((ww > 1) && (hh > 1))
          {
-            switch (ret_value)
+            // printf("* LAYER: %d OBJ: %p - %s || %d,%d @ %dx%d\n",
+            //        evas_object_layer_get(o), o, evas_object_name_get(o), xx, yy, ww, hh);
+
+            if ((x > xx) && (x < xx + ww) && (y > yy) && (y < yy + hh))
             {
-               case RETURN_NONE_VALUE:
-                  return 1;
-               case RETURN_RIGHT_VALUE:
-                  return ec->x + ec->w;
-               case RETURN_BOTTOM_VALUE:
-                  return ec->y + ec->h;
-               case RETURN_TOP_VALUE:
-                  return ec->y;
-               case RETURN_LEFT_VALUE:
-                  return ec->x;
-               default:
-                  return 1;
+               switch (ret_value)
+               {
+                  case RETURN_NONE_VALUE:
+                     return 1;
+                  case RETURN_RIGHT_VALUE:
+                     return xx + ww;
+                  case RETURN_BOTTOM_VALUE:
+                     return yy + hh;
+                  case RETURN_TOP_VALUE:
+                     return yy;
+                  case RETURN_LEFT_VALUE:
+                     return xx;
+                  default:
+                     return 1;
+               }
             }
          }
       }
+
+      o = evas_object_below_get(o);
    }
-   /*E_Container *con;
 
-   con = e_container_current_get(e_manager_current_get());
-
-   for (l = e_container_shape_list_get(con); l; l = l->next)
-   {
-      E_Container_Shape *es;
-      int sx, sy, sw, sh;
-      es = l->data;
-      if (es->visible)
-      {
-         e_container_shape_geometry_get(es, &sx, &sy, &sw, &sh);
-         //printf("PENGUINS: E_shape: [%d] x:%d y:%d w:%d h:%d\n", es->visible, sx, sy, sw, sh);
-         if ( ((x > sx) && (x < (sx+sw))) &&
-              ((y > sy) && (y < (sy+sh))) )
-         {
-            switch (ret_value)
-            {
-               case _RET_NONE_VALUE:
-                  return 1;
-                  break;
-               case _RET_RIGHT_VALUE:
-                  return sx+sw;
-                  break;
-               case _RET_BOTTOM_VALUE:
-                  return sy+sh;
-                  break;
-               case _RET_TOP_VALUE:
-                  return sy;
-                  break;
-               case _RET_LEFT_VALUE:
-                  return sx;
-                  break;
-               default:
-                  return 1;
-            }
-         }
-      }
-   }*/
    return 0;
 }
 
