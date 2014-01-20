@@ -30,7 +30,7 @@
 #define ID_ANGEL 8
 
 
-//_RAND(prob) is true one time every prob
+// _RAND(prob) is true one time every prob
 #define _RAND(prob) ( ( random() % prob ) == 0 )
 
 
@@ -190,31 +190,31 @@ _population_free(Penguins_Population *pop)
    pop->actions = NULL;
 }
 
-
-
 static Penguins_Action *
 _load_action(Penguins_Population *pop, const char *filename, char *name, int id)
 {
    Penguins_Action *act;
+   int w, h, speed, ret;
    char *data;
  
    data = edje_file_data_get(filename, name);
    if (!data) return NULL;
 
+   ret = sscanf(data, "%d %d %d", &w, &h, &speed);
+   free(data);
+   if (ret != 3) return NULL;
+   
    act = E_NEW(Penguins_Action, 1);
    if (!act) return NULL;
 
    act->name = strdup(name);
-   sscanf(data, "%d %d %d", &act->w, &act->h, &act->speed);
-
-   act->w = act->w * pop->conf->zoom;
-   act->h = act->h * pop->conf->zoom;
-   act->speed = act->speed * pop->conf->zoom;
    act->id = id;
+   act->w = w * pop->conf->zoom;
+   act->h = h * pop->conf->zoom;
+   act->speed = speed * pop->conf->zoom;
 
    if (!pop->actions)
      pop->actions = eina_hash_string_small_new(NULL);
-
    eina_hash_add(pop->actions, name, act);
 
    return act;
@@ -224,39 +224,38 @@ static Penguins_Custom_Action *
 _load_custom_action(Penguins_Population *pop, const char *filename, char *name)
 {
    Penguins_Custom_Action *c;
+   int w, h, h_speed, v_speed, r_min, r_max, ret;
    char *data;
    char buf[25];
 
-   data = edje_file_data_get(filename, name); // TODO free data??
+   data = edje_file_data_get(filename, name);
    if (!data) return NULL;
+
+   ret = sscanf(data, "%d %d %d %d %d %d", 
+                &w, &h, &h_speed, &v_speed, &r_min, &r_max);
+   free(data);
+   if (ret != 6) return NULL;
 
    c = E_NEW(Penguins_Custom_Action, 1);
    if (!c) return NULL;
 
    c->name = strdup(name);
-   sscanf(data, "%d %d %d %d %d %d", 
-            &c->w, &c->h, &c->h_speed, &c->v_speed, &c->r_min, &c->r_max);
+   c->w = w * pop->conf->zoom;
+   c->h = h * pop->conf->zoom;
+   c->h_speed = h_speed * pop->conf->zoom;
+   c->v_speed = v_speed * pop->conf->zoom;
+   c->r_min = r_min;
+   c->r_max = r_max;
 
-   c->w = c->w * pop->conf->zoom;
-   c->h = c->h * pop->conf->zoom;
-
-   snprintf(buf, sizeof(buf), "start_custom_%d_left", pop->custom_num+1);
+   pop->custom_num++;
+   snprintf(buf, sizeof(buf), "start_custom_%d_left", pop->custom_num);
    c->left_program_name = strdup(buf);
-   snprintf(buf, sizeof(buf), "start_custom_%d_right", pop->custom_num+1);
+   snprintf(buf, sizeof(buf), "start_custom_%d_right", pop->custom_num);
    c->right_program_name = strdup(buf);
 
    pop->customs = eina_list_append(pop->customs, c);
-   pop->custom_num++;
 
    return c;
-}
-
-Eina_Bool
-hash_fn(const Eina_Hash *hash, const char *key, void *data, void *fdata)
-{
-   Penguins_Action *a = data;
-   printf("PENGUINS: Load action: '%s' w:%d h:%d speed:%d\n", key, a->w, a->h, a->speed);
-   return 1;
 }
 
 static void
@@ -271,10 +270,10 @@ _theme_load(Penguins_Population *pop)
    pop->custom_num = 0;
 
    name = edje_file_data_get(pop->conf->theme, "PopulationName");
-   if (!name) 
-      return;
+   if (!name) return;
 
    //printf("PENGUINS: Load theme: %s (%s)\n", name, pop->conf->theme);
+   free(name);
 
    // load standard actions
    _load_action(pop, pop->conf->theme, "Walker", ID_WALKER);
@@ -291,15 +290,6 @@ _theme_load(Penguins_Population *pop)
    snprintf(buf, sizeof(buf), "Custom_1");
    while (_load_custom_action(pop, pop->conf->theme, buf))
       snprintf(buf, sizeof(buf), "Custom_%d", i++);
-
-   // eina_hash_foreach(pop->actions, hash_fn, NULL);
-   // Eina_List *l;
-   // for (l = pop->customs; l; l = l->next )
-   // {
-   //    Custom_Action *c = l->data;
-   //    printf("PENGUINS: Load custom action: name:'%s' w:%d h:%d h_speed:%d v_speed:%d\n",
-   //             c->name, c->w, c->h, c->h_speed, c->v_speed);
-   // }
 }
 
 static void
@@ -321,12 +311,11 @@ _population_load(Penguins_Population *pop)
       o = edje_object_add(pop->canvas);
       edje_object_file_set(o, pop->conf->theme, "anims");
 
-      tux->action = eina_hash_find(pop->actions,"Faller");
+      tux->action = eina_hash_find(pop->actions, "Faller");
 
-      evas_object_image_alpha_set(o, 0.5);
       evas_object_color_set(o, pop->conf->alpha, pop->conf->alpha,
                             pop->conf->alpha, pop->conf->alpha);
-      evas_object_pass_events_set(o, 0);
+      evas_object_pass_events_set(o, EINA_FALSE);
 
       edje_object_signal_callback_add(o,"click_l","penguins", _cb_click_l, tux);
       edje_object_signal_callback_add(o,"click_r","penguins", _cb_click_r, tux);
@@ -345,8 +334,6 @@ _delay_born(void *data)
 {
    Penguins_Actor *tux = data;
 
-   if (!tux) return ECORE_CALLBACK_CANCEL;
-
    tux->pop->penguins = eina_list_append(tux->pop->penguins, tux);
    _reborn(tux);
 
@@ -360,12 +347,14 @@ _cb_click_l (void *data, Evas_Object *o, const char *emi, const char *src)
    //printf("Left-click on TUX !!!\n");
    _start_bombing_at(tux, tux->y + tux->action->h);
 }
+
 static void
 _cb_click_r (void *data, Evas_Object *o, const char *emi, const char *src)
 {
    //printf("Right-click on TUX !!!\n");
    e_int_config_penguins_module(NULL, NULL);
 }
+
 static void
 _cb_click_c (void *data, Evas_Object *o, const char *emi, const char *src)
 {
@@ -379,11 +368,10 @@ _reborn(Penguins_Actor *tux)
    tux->reverse = random() % (2);
    tux->x = random() % (tux->pop->width);
    tux->y = -100;
-   tux->custom = 0;
+   tux->custom = NULL;
    evas_object_move(tux->obj, (int)tux->x, (int)tux->y);
    _start_falling_at(tux, tux->x);
    evas_object_resize(tux->obj, tux->action->w, tux->action->h);
-   evas_object_image_fill_set(tux->obj, 0, 0, tux->action->w, tux->action->h);
    evas_object_show(tux->obj);
 }
 
@@ -399,21 +387,21 @@ _cb_animator(void *data)
       Penguins_Actor *tux;
       int touch;
       tux = l->data;
-      
+
       // ******  CUSTOM ACTIONS  ********
       if (tux->custom)
       {
          tux->x += ((double)tux->custom->h_speed * ecore_animator_frametime_get());
          tux->y += ((double)tux->custom->v_speed * ecore_animator_frametime_get());
-         if (!_is_inside_any_win(pop,
-               (int)tux->x+(tux->action->w/2),
-               (int)tux->y+tux->action->h+1,
-               RETURN_NONE_VALUE)
-            && (int)tux->y+tux->action->h+1 < pop->height
+         if ((!_is_inside_any_win(pop,
+               (int)tux->x + (tux->action->w / 2),
+               (int)tux->y + tux->action->h + 1,
+               RETURN_NONE_VALUE))
+            && ((int)tux->y + tux->action->h + 1 < pop->height)
             )
          {
             edje_object_signal_callback_del(tux->obj,"custom_done","edje", _cb_custom_end);
-            _start_falling_at(tux, (int)tux->x+(tux->action->w/2));
+            _start_falling_at(tux, (int)tux->x + (tux->action->w / 2));
             tux->custom = NULL;
          }
       }
@@ -422,18 +410,18 @@ _cb_animator(void *data)
       {
          tux->y += ((double)tux->action->speed * ecore_animator_frametime_get());
          if ((touch = _is_inside_any_win(pop,
-                        (int)tux->x+(tux->action->w/2),
+                        (int)tux->x + (tux->action->w / 2),
                         (int)tux->y + tux->action->h,
                         RETURN_TOP_VALUE)))
          {
-            if (( (int)tux->y - tux->faller_h)  > MAX_FALLER_HEIGHT)
+            if (((int)tux->y - tux->faller_h) > MAX_FALLER_HEIGHT)
                _start_splatting_at(tux, touch);
             else
                _start_walking_at(tux, touch); 
          }
-         else if (( (int)tux->y + tux->action->h ) > pop->height)
+         else if (((int)tux->y + tux->action->h) > pop->height)
          {
-            if (( (int)tux->y - tux->faller_h)  > MAX_FALLER_HEIGHT)
+            if (((int)tux->y - tux->faller_h) > MAX_FALLER_HEIGHT)
                _start_splatting_at(tux, pop->height);
             else
                _start_walking_at(tux, pop->height);
@@ -444,12 +432,12 @@ _cb_animator(void *data)
       {
          tux->y += ((double)tux->action->speed * ecore_animator_frametime_get());
          if ((touch = _is_inside_any_win(pop,
-                        (int)tux->x+(tux->action->w/2),
+                        (int)tux->x + (tux->action->w / 2),
                         (int)tux->y + tux->action->h,
                         RETURN_TOP_VALUE)
             ))
             _start_walking_at(tux, touch);
-         else if (( (int)tux->y + tux->action->h ) > pop->height)
+         else if (((int)tux->y + tux->action->h) > pop->height)
             _start_walking_at(tux, pop->height);
       }
       // ******  WALKER  ********
@@ -461,7 +449,7 @@ _cb_animator(void *data)
          }
          // random custom
          else if (_RAND(CUSTOM_PROB)){
-            _start_custom_at(tux, tux->y+tux->action->h);
+            _start_custom_at(tux, tux->y + tux->action->h);
          }
          // left
          else if (tux->reverse)
@@ -481,15 +469,18 @@ _cb_animator(void *data)
                }
             }
             if ((tux->y + tux->action->h) < pop->height)   
-               if (!_is_inside_any_win(pop, (int)tux->x+(tux->action->w/2) , (int)tux->y+tux->action->h+1, RETURN_NONE_VALUE))
-                  _start_falling_at(tux, (int)tux->x+(tux->action->w/2));
+               if (!_is_inside_any_win(pop, (int)tux->x + (tux->action->w / 2) ,
+                                            (int)tux->y + tux->action->h + 1,
+                                            RETURN_NONE_VALUE))
+                  _start_falling_at(tux, (int)tux->x + (tux->action->w / 2));
          }
          // right
          else
          {
             tux->x += ((double)tux->action->speed * ecore_animator_frametime_get());
-            if ((touch = _is_inside_any_win(pop, (int)tux->x + tux->action->w, (int)tux->y, RETURN_LEFT_VALUE)) ||
-                (tux->x + tux->action->w) > pop->width)
+            if ((touch = _is_inside_any_win(pop, (int)tux->x + tux->action->w,
+                                                 (int)tux->y, RETURN_LEFT_VALUE))
+                || (tux->x + tux->action->w) > pop->width)
             {
                if (_RAND(CLIMBER_PROB))
                {
@@ -505,8 +496,10 @@ _cb_animator(void *data)
                }
             }
             if ((tux->y + tux->action->h) < pop->height)   
-               if (!_is_inside_any_win(pop, (int)tux->x+(tux->action->w/2), (int)tux->y+tux->action->h+1, RETURN_NONE_VALUE))
-                  _start_falling_at(tux, (int)tux->x+(tux->action->w/2));
+               if (!_is_inside_any_win(pop, (int)tux->x + (tux->action->w / 2),
+                                            (int)tux->y + tux->action->h + 1,
+                                            RETURN_NONE_VALUE))
+                  _start_falling_at(tux, (int)tux->x + (tux->action->w / 2));
          }
       }
       // ******  FLYER  ********
@@ -536,14 +529,14 @@ _cb_animator(void *data)
          if (tux->reverse)
          {
             if (!_is_inside_any_win(pop,
-                  (int)tux->x-1,
-                  (int)tux->y+(tux->action->h/2),
+                  (int)tux->x - 1,
+                  (int)tux->y + (tux->action->h / 2),
                   RETURN_NONE_VALUE))
             {
                if (tux->x > 0)
                {
-                  tux->x-=(tux->action->w/2)+1;  
-                  _start_walking_at(tux, (int)tux->y+(tux->action->h/2));
+                  tux->x -= (tux->action->w / 2) + 1;  
+                  _start_walking_at(tux, (int)tux->y + (tux->action->h / 2));
                }
             }
          }
@@ -551,14 +544,14 @@ _cb_animator(void *data)
          else
          {
             if (!_is_inside_any_win(pop, 
-                  (int)tux->x+tux->action->w+1, 
-                  (int)tux->y+(tux->action->h/2), 
+                  (int)tux->x + tux->action->w + 1, 
+                  (int)tux->y + (tux->action->h / 2), 
                   RETURN_NONE_VALUE))
             {
-               if ((tux->x+tux->action->w) < pop->width)
+               if ((tux->x + tux->action->w) < pop->width)
                {
-                  tux->x+=(tux->action->w/2)+1;
-                  _start_walking_at(tux, (int)tux->y+(tux->action->h/2));
+                  tux->x += (tux->action->w / 2) + 1;
+                  _start_walking_at(tux, (int)tux->y + (tux->action->h / 2));
                }
             }
          }
@@ -596,19 +589,14 @@ _is_inside_any_win(Penguins_Population *pop, int x, int y, int ret_value)
             {
                case RETURN_NONE_VALUE:
                   return 1;
-                  break;
                case RETURN_RIGHT_VALUE:
                   return ec->x + ec->w;
-                  break;
                case RETURN_BOTTOM_VALUE:
                   return ec->y + ec->h;
-                  break;
                case RETURN_TOP_VALUE:
                   return ec->y;
-                  break;
                case RETURN_LEFT_VALUE:
                   return ec->x;
-                  break;
                default:
                   return 1;
             }
@@ -662,7 +650,7 @@ _start_walking_at(Penguins_Actor *tux, int at_y)
 {
    //printf("PENGUINS: Start walking...at %d\n", at_y);
    tux->action = eina_hash_find(tux->pop->actions, "Walker");
-   tux->custom = 0;
+   tux->custom = NULL;
 
    tux->y = at_y - tux->action->h;
    evas_object_resize(tux->obj, tux->action->w, tux->action->h);
@@ -730,7 +718,7 @@ _start_falling_at(Penguins_Actor *tux, int at_x)
       }
    }
    tux->faller_h = (int)tux->y;
-   tux->custom = 0;
+   tux->custom = NULL;
 }
 
 static void 
@@ -748,7 +736,7 @@ _start_flying_at(Penguins_Actor *tux, int at_y)
 static void 
 _start_angel_at(Penguins_Actor *tux, int at_y)
 {
-   tux->x = tux->x + (tux->action->w /2);
+   tux->x = tux->x + (tux->action->w / 2);
    tux->action = eina_hash_find(tux->pop->actions, "Angel");
    if (!tux->action)
    {
@@ -756,10 +744,10 @@ _start_angel_at(Penguins_Actor *tux, int at_y)
       return;
    }
 
-   tux->x = tux->x - (tux->action->w /2);
+   tux->x = tux->x - (tux->action->w / 2);
    tux->y = at_y - 10;
 
-   tux->custom = 0;
+   tux->custom = NULL;
    edje_object_signal_emit(tux->obj, "start_angel", "epenguins");
    evas_object_move(tux->obj,(int)tux->x,(int)tux->y);
    evas_object_resize(tux->obj, tux->action->w, tux->action->h);
@@ -769,8 +757,9 @@ static void
 _cb_splatter_end(void *data, Evas_Object *o, const char *emi, const char *src)
 {
    Penguins_Actor *tux = data;
+
    edje_object_signal_callback_del(o,"splatting_done","edje", _cb_splatter_end);
-   _start_angel_at(tux, tux->y+tux->action->h+10);
+   _start_angel_at(tux, tux->y + tux->action->h + 10);
 }
 
 static void 
@@ -780,7 +769,6 @@ _start_splatting_at(Penguins_Actor *tux, int at_y)
    evas_object_hide(tux->obj);
    tux->action = eina_hash_find(tux->pop->actions, "Splatter");
    evas_object_resize(tux->obj, tux->action->w, tux->action->h);
-   evas_object_image_fill_set(tux->obj, 0, 0, tux->action->w, tux->action->h);
    tux->y = at_y - tux->action->h;
    if (tux->reverse)
       edje_object_signal_emit(tux->obj, "start_splatting_left", "epenguins");
@@ -789,8 +777,7 @@ _start_splatting_at(Penguins_Actor *tux, int at_y)
 
    edje_object_signal_callback_add(tux->obj,"splatting_done","edje", _cb_splatter_end, tux);
    evas_object_resize(tux->obj, tux->action->w, tux->action->h);
-   evas_object_image_fill_set(tux->obj, 0, 0, tux->action->w, tux->action->h);
-   evas_object_move(tux->obj,(int)tux->x,(int)tux->y);
+   evas_object_move(tux->obj, (int)tux->x, (int)tux->y);
    evas_object_show(tux->obj);
 }
 
@@ -798,6 +785,7 @@ static void
 _cb_bomber_end(void *data, Evas_Object *o, const char *emi, const char *src)
 {
    Penguins_Actor *tux = data;
+
    edje_object_signal_callback_del(o,"bombing_done","edje", _cb_bomber_end);
    _start_angel_at(tux, tux->y);
 }
@@ -818,21 +806,21 @@ _start_bombing_at(Penguins_Actor *tux, int at_y)
    else
       edje_object_signal_emit(tux->obj, "start_bombing_right", "epenguins");
 
-   tux->x = tux->x + (tux->action->w /2);
+   tux->x = tux->x + (tux->action->w / 2);
    tux->action = eina_hash_find(tux->pop->actions, "Bomber");
-   tux->x = tux->x - (tux->action->w /2);
+   tux->x = tux->x - (tux->action->w / 2);
    tux->y = at_y - tux->action->h;
 
    edje_object_signal_callback_add(tux->obj,"bombing_done","edje", _cb_bomber_end, tux);
-   evas_object_image_fill_set(tux->obj, 0, 0, tux->action->w, tux->action->h);
    evas_object_resize(tux->obj, tux->action->w, tux->action->h);
-   evas_object_move(tux->obj,(int)tux->x,(int)tux->y);
+   evas_object_move(tux->obj, (int)tux->x, (int)tux->y);
 }
 
 static void 
 _cb_custom_end(void *data, Evas_Object *o, const char *emi, const char *src)
 {
    Penguins_Actor* tux = data;
+
    //printf("PENGUINS: Custom action end.\n");
    if (!tux->custom)
       return;
@@ -848,7 +836,7 @@ _cb_custom_end(void *data, Evas_Object *o, const char *emi, const char *src)
    else
    {
       edje_object_signal_callback_del(o,"custom_done","edje", _cb_custom_end);
-      _start_walking_at(tux, tux->y+tux->custom->h);
+      _start_walking_at(tux, tux->y + tux->custom->h);
       tux->custom = NULL;
    }
 }
@@ -862,17 +850,14 @@ _start_custom_at(Penguins_Actor *tux, int at_y)
       return;
 
    ran = random() % (tux->pop->custom_num);
-   //ran=2;  //!!!!
    //printf("START CUSTOM NUM %d RAN %d\n",tux->pop->custom_num, ran);
    
    tux->custom = eina_list_nth(tux->pop->customs, ran);
-   if (!tux->custom)
-      return;
-
+   if (!tux->custom) return;
 
    evas_object_resize(tux->obj, tux->custom->w, tux->custom->h);
    tux->y = at_y - tux->custom->h;
-   
+
    if ( tux->custom->r_min == tux->custom->r_max)
       tux->r_count = tux->custom->r_min;
    else
@@ -890,4 +875,3 @@ _start_custom_at(Penguins_Actor *tux, int at_y)
    edje_object_signal_callback_add(tux->obj,"custom_done","edje", _cb_custom_end, tux);
    
 }
-
