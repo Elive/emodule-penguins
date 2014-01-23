@@ -242,13 +242,12 @@ _load_custom_action(Penguins_Population *pop, const char *filename, char *name)
    c->r_min = r_min;
    c->r_max = r_max;
 
-   pop->custom_num++;
-   snprintf(buf, sizeof(buf), "start_custom_%d_left", pop->custom_num);
-   c->left_program_name = strdup(buf);
-   snprintf(buf, sizeof(buf), "start_custom_%d_right", pop->custom_num);
-   c->right_program_name = strdup(buf);
-
    pop->customs = eina_list_append(pop->customs, c);
+
+   snprintf(buf, sizeof(buf), "start_custom_%d_left", eina_list_count(pop->customs));
+   c->left_program_name = strdup(buf);
+   snprintf(buf, sizeof(buf), "start_custom_%d_right", eina_list_count(pop->customs));
+   c->right_program_name = strdup(buf);
 
    return c;
 }
@@ -262,7 +261,6 @@ _theme_load(Penguins_Population *pop)
 
    pop->actions = NULL;
    pop->customs = NULL;
-   pop->custom_num = 0;
 
    name = edje_file_data_get(pop->conf->theme, "PopulationName");
    if (!name) return;
@@ -795,7 +793,7 @@ _cb_custom_end(void *data, Evas_Object *o, const char *emi, const char *src)
 {
    Penguins_Actor* tux = data;
 
-   //printf("PENGUINS: Custom action end.\n");
+   printf("PENGUINS: Custom action end.\n");
    if (!tux->custom)
       return;
 
@@ -820,11 +818,11 @@ _start_custom_at(Penguins_Actor *tux, int at_y)
 {
    int ran;
 
-   if (tux->pop->custom_num < 1)
+   if (eina_list_count(tux->pop->customs) < 1)
       return;
 
-   ran = random() % (tux->pop->custom_num);
-   //printf("START CUSTOM NUM %d RAN %d\n",tux->pop->custom_num, ran);
+   ran = random() % (eina_list_count(tux->pop->customs));
+   printf("START CUSTOM NUM %d RAN %d\n", eina_list_count(tux->pop->customs), ran);
 
    tux->custom = eina_list_nth(tux->pop->customs, ran);
    if (!tux->custom) return;
@@ -844,8 +842,8 @@ _start_custom_at(Penguins_Actor *tux, int at_y)
    else
       edje_object_signal_emit(tux->obj, tux->custom->right_program_name, "epenguins");
 
-   //printf("START Custom Action n %d (%s) repeat: %d\n", ran, tux->custom->left_program_name, tux->r_count);
+   printf("START Custom Action n %d (%s) repeat: %d\n", ran, tux->custom->left_program_name, tux->r_count);
 
    edje_object_signal_callback_add(tux->obj,"custom_done","edje", _cb_custom_end, tux);
-
+   printf("DONE\n");
 }

@@ -18,7 +18,6 @@ typedef struct _Penguins_Population
    Eina_List *penguins; // list of Penguins_Actor*
    Eina_Hash *actions;  // key:action_name val:Penguins_Action*
    Eina_List *customs;  // list of Penguins_Custom_Action
-   int custom_num; // TODO: REMOVEME
 
    E_Config_DD *conf_edd;
    Penguins_Config *conf;
