@@ -13,17 +13,15 @@ typedef struct _Penguins_Config
 typedef struct _Penguins_Population
 {
    E_Module *module;
-   Evas *canvas;
    Ecore_Animator *animator;
-   Eina_List *penguins;
-   Eina_Hash *actions;
-   Eina_List *customs;
-   int custom_num;
-   Eina_List *themes;
+   Eina_List *themes;   // list of str (full theme path)
+   Eina_List *penguins; // list of Penguins_Actor*
+   Eina_Hash *actions;  // key:action_name val:Penguins_Action*
+   Eina_List *customs;  // list of Penguins_Custom_Action
+   int custom_num; // TODO: REMOVEME
 
    E_Config_DD *conf_edd;
    Penguins_Config *conf;
-   Evas_Coord width, height;
    E_Config_Dialog *config_dialog;
 } Penguins_Population;
 
@@ -50,13 +48,14 @@ typedef struct _Penguins_Custom_Action
 typedef struct _Penguins_Actor
 {
    Evas_Object *obj;
+   E_Zone *zone;
    int reverse;
    double x, y;
    int faller_h;
    int r_count;
    Penguins_Action *action;
    Penguins_Custom_Action *custom;
-   Penguins_Population *pop;
+   Penguins_Population *pop; // TODO: REMOVEME
 } Penguins_Actor;
 
 
