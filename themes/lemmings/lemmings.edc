@@ -1014,7 +1014,7 @@ collections
             signal: "start_splatting_right";
             source: "epenguins";
             action: STATE_SET "splatter" 0.0;
-            transition: LINEAR 1;
+            transition: LINEAR 1.0;
             target: "penguins";
             //after: "stop_all";
             after: "splatting_done";
@@ -1025,7 +1025,7 @@ collections
             signal: "start_splatting_left";
             source: "epenguins";
             action: STATE_SET "splatter" 1.0;
-            transition: LINEAR 1;
+            transition: LINEAR 1.0;
             target: "penguins";
             after: "splatting_done";
          }

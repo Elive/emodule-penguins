@@ -2,6 +2,18 @@
 #define E_MOD_PENGUINS_H
 
 
+enum {
+   AID_WALKER,
+   AID_FALLER,
+   AID_CLIMBER,
+   AID_FLOATER,
+   AID_SPLATTER,
+   AID_FLYER,
+   AID_BOMBER,
+   AID_ANGEL,
+   AID_LAST
+};
+
 typedef struct _Penguins_Config
 {
    double zoom;
@@ -10,19 +22,6 @@ typedef struct _Penguins_Config
    int alpha;
 } Penguins_Config;
 
-typedef struct _Penguins_Population
-{
-   E_Module *module;
-   Ecore_Animator *animator;
-   Eina_List *themes;   // list of str (full theme path)
-   Eina_List *penguins; // list of Penguins_Actor*
-   Eina_Hash *actions;  // key:action_name val:Penguins_Action*
-   Eina_List *customs;  // list of Penguins_Custom_Action
-
-   E_Config_DD *conf_edd;
-   Penguins_Config *conf;
-   E_Config_Dialog *config_dialog;
-} Penguins_Population;
 
 typedef struct _Penguins_Action
 {
@@ -44,6 +43,20 @@ typedef struct _Penguins_Custom_Action
    char *right_program_name;
 } Penguins_Custom_Action;
 
+typedef struct _Penguins_Population
+{
+   E_Module *module;
+   Ecore_Animator *animator;
+   Eina_List *themes;
+   Eina_List *penguins;
+   Penguins_Action *actions[AID_LAST];
+   Eina_List *customs;
+
+   E_Config_DD *conf_edd;
+   Penguins_Config *conf;
+   E_Config_Dialog *config_dialog;
+} Penguins_Population;
+
 typedef struct _Penguins_Actor
 {
    Evas_Object *obj;
@@ -56,6 +69,7 @@ typedef struct _Penguins_Actor
    Penguins_Custom_Action *custom;
    Penguins_Population *pop; // TODO: REMOVEME
 } Penguins_Actor;
+
 
 
 Penguins_Population *penguins_init(E_Module *m);
