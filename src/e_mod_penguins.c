@@ -32,7 +32,7 @@ static void       _start_walking_at(Penguins_Actor *tux, int at_y);
 static void       _start_climbing_at(Penguins_Actor *tux, int at_x);
 static void       _start_falling_at(Penguins_Actor *tux, int at_x);
 static void       _start_flying_at(Penguins_Actor *tux, int at_y);
-static void       _start_splatting_at(Penguins_Actor *tux, int at_y);
+static void       _start_splatting_at(Penguins_Actor *tux, int at_x, int at_y);
 static void       _start_custom_at(Penguins_Actor *tux, int at_y);
 static void       _reborn(Penguins_Actor *tux);
 static void       _cb_custom_end(void *data, Evas_Object *o, const char *emi, const char *src);
@@ -400,14 +400,14 @@ _cb_animator(void *data)
                         RETURN_TOP_VALUE)))
          {
             if (((int)tux->y - tux->faller_h) > MAX_FALLER_HEIGHT)
-               _start_splatting_at(tux, touch);
+               _start_splatting_at(tux, (int)tux->x + (tux->action->w / 2), touch);
             else
                _start_walking_at(tux, touch);
          }
          else if (((int)tux->y + tux->action->h) > tux->zone->y + tux->zone->h)
          {
             if (((int)tux->y - tux->faller_h) > MAX_FALLER_HEIGHT)
-               _start_splatting_at(tux, tux->zone->y + tux->zone->h);
+               _start_splatting_at(tux, (int)tux->x + (tux->action->w / 2), tux->zone->y + tux->zone->h);
             else
                _start_walking_at(tux, tux->zone->y + tux->zone->h);
          }
@@ -716,13 +716,14 @@ _cb_splatter_end(void *data, Evas_Object *o, const char *emi, const char *src)
 }
 
 static void
-_start_splatting_at(Penguins_Actor *tux, int at_y)
+_start_splatting_at(Penguins_Actor *tux, int at_x, int at_y)
 {
    // printf("PENGUINS: Start splatting...\n");
 
    tux->action = tux->pop->actions[AID_SPLATTER];
    evas_object_resize(tux->obj, tux->action->w, tux->action->h);
    tux->y = at_y - tux->action->h;
+   tux->x = at_x - tux->action->w / 2;
    if (tux->reverse)
       edje_object_signal_emit(tux->obj, "start_splatting_left", "epenguins");
    else
