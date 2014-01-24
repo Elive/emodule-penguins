@@ -310,7 +310,7 @@ _population_load(Penguins_Population *pop)
       evas_object_color_set(tux->obj, pop->conf->alpha, pop->conf->alpha,
                                       pop->conf->alpha, pop->conf->alpha);
       evas_object_pass_events_set(tux->obj, EINA_FALSE);
-      evas_object_layer_set(tux->obj, E_LAYER_CLIENT_DESKTOP);
+      evas_object_layer_set(tux->obj, E_LAYER_DESKTOP_TOP + 10);
       edje_object_signal_callback_add(tux->obj, "click_l", "penguins", _cb_click_l, tux);
       edje_object_signal_callback_add(tux->obj, "click_r", "penguins", _cb_click_r, tux);
       edje_object_signal_callback_add(tux->obj, "click_c", "penguins", _cb_click_c, tux);
