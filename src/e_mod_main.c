@@ -37,27 +37,18 @@ e_modapi_init(E_Module *m)
 EAPI int
 e_modapi_shutdown(E_Module *m)
 {
-   Penguins_Population *pop;
-
    e_configure_registry_item_del("appearance/penguins");
    e_configure_registry_category_del("appearance");
-
-   if ((pop = m->data))
-   {
-      E_FREE_FUNC(pop->config_dialog, e_object_del);
-      penguins_shutdown(pop);
-   }
+   penguins_shutdown();
    return 1;
 }
 
 EAPI int
 e_modapi_save(E_Module *m)
 {
-   Penguins_Population *pop;
+   Penguins_Population *pop = m->data;
 
-   pop = m->data;
-   if (!pop) return 1;
-   e_config_domain_save("module.penguins", pop->conf_edd, pop->conf);
+   if (pop) e_config_domain_save("module.penguins", pop->conf_edd, pop->conf);
    return 1;
 }
 

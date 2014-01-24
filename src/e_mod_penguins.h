@@ -62,20 +62,18 @@ typedef struct _Penguins_Actor
 {
    Evas_Object *obj;
    E_Zone *zone;
-   int reverse;
    double x, y;
+   int reverse;
    int faller_h;
    int r_count;
    Penguins_Action *action;
    Penguins_Custom_Action *custom;
-   Penguins_Population *pop; // TODO: REMOVEME
 } Penguins_Actor;
 
 
-
 Penguins_Population *penguins_init(E_Module *m);
-void                 penguins_shutdown(Penguins_Population *pop);
-void                 penguins_reload(Penguins_Population *pop);
+void                 penguins_shutdown(void);
+void                 penguins_reload(void);
 
 
 #endif

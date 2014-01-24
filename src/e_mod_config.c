@@ -148,6 +148,6 @@ _basic_apply_data(E_Config_Dialog *cfd, E_Config_Dialog_Data *cfdata)
 
    e_config_save_queue();
 
-   penguins_reload(pop);
+   penguins_reload();
    return 1;
 }
