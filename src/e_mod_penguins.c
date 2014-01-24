@@ -40,8 +40,8 @@ static void       _cb_click_l (void *data, Evas_Object *o, const char *emi, cons
 static void       _cb_click_r (void *data, Evas_Object *o, const char *emi, const char *src);
 static void       _cb_click_c (void *data, Evas_Object *o, const char *emi, const char *src);
 static void       _start_bombing_at(Penguins_Actor *tux, int at_y);
-static Eina_Bool        _delay_born(void *data);
-
+static Eina_Bool  _delay_born(void *data);
+static Eina_Bool  _cb_zone_changed(void *data, int type EINA_UNUSED, void *event EINA_UNUSED);
 
 
 Penguins_Population *
@@ -99,6 +99,10 @@ penguins_init(E_Module *m)
       free(filename);
    }
 
+   // be notified when zones changes
+   E_LIST_HANDLER_APPEND(pop->handlers, E_EVENT_ZONE_ADD, _cb_zone_changed, pop);
+   E_LIST_HANDLER_APPEND(pop->handlers, E_EVENT_ZONE_DEL, _cb_zone_changed, pop);
+
    // bootstrap
    _theme_load(pop);
    _population_load(pop);
@@ -114,6 +118,7 @@ penguins_shutdown(Penguins_Population *pop)
 
    _population_free(pop);
 
+   E_FREE_LIST(pop->handlers, ecore_event_handler_del);
    E_FREE_FUNC(pop->animator, ecore_animator_del);
    E_FREE_LIST(pop->themes, free);
 
@@ -149,18 +154,18 @@ _population_free(Penguins_Population *pop)
    Penguins_Custom_Action *act;
    int i;
 
-   //printf("PENGUINS: Free Population\n");
+   // printf("PENGUINS: Free Population\n");
 
    EINA_LIST_FREE(pop->penguins, tux)
    {
-      //printf("PENGUINS: Free TUX :)\n");
+      // printf("PENGUINS: Free TUX :)\n");
       E_FREE_FUNC(tux->obj, evas_object_del);
       E_FREE(tux);
    }
 
    EINA_LIST_FREE(pop->customs, act)
    {
-      //printf("PENGUINS: Free Custom Action\n");
+      // printf("PENGUINS: Free Custom Action\n");
       E_FREE(act->name);
       E_FREE(act->left_program_name);
       E_FREE(act->right_program_name);
@@ -168,7 +173,10 @@ _population_free(Penguins_Population *pop)
    }
 
    for (i = 0; i < AID_LAST; i++)
-     E_FREE_FUNC(pop->actions[i], _action_free);
+   {
+      // printf("PENGUINS: Free Action\n");
+      E_FREE_FUNC(pop->actions[i], _action_free);
+   }
 }
 
 static Penguins_Action *
@@ -344,6 +352,14 @@ static void
 _cb_click_c (void *data, Evas_Object *o, const char *emi, const char *src)
 {
    //printf("Center-click on TUX !!!\n");
+}
+
+static Eina_Bool
+_cb_zone_changed(void *data, int type EINA_UNUSED, void *event EINA_UNUSED)
+{
+   // printf("PENGUINS: ZONES CHANGED\n");
+   penguins_reload((Penguins_Population*)data);
+   return ECORE_CALLBACK_PASS_ON;
 }
 
 static void

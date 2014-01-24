@@ -51,6 +51,7 @@ typedef struct _Penguins_Population
    Eina_List *penguins;
    Penguins_Action *actions[AID_LAST];
    Eina_List *customs;
+   Eina_List *handlers;
 
    E_Config_DD *conf_edd;
    Penguins_Config *conf;
