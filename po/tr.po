@@ -6,52 +6,52 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: enlightenment\n"
-"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-11-05 16:07+0800\n"
-"PO-Revision-Date: 2009-11-13 05:57+0000\n"
-"Last-Translator: Mustafa Yılmaz <apshalasha@gmail.com>\n"
+"Report-Msgid-Bugs-To: $MSGID_BUGS_ADDRESS\n"
+"POT-Creation-Date: 2013-08-24 11:51+0200\n"
+"PO-Revision-Date: 2013-09-05 08:32+0000\n"
+"Last-Translator: Ali E.İMREK <alierkanimrek@gmail.com>\n"
 "Language-Team: Turkish <tr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-11-14 04:52+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2013-09-06 05:28+0000\n"
+"X-Generator: Launchpad (build 16760)\n"
+"Language: tr\n"
 
-#: ../src/e_mod_config.c:42
+#: src/e_mod_config.c:42
 msgid "Population Settings"
-msgstr "Nüfus Ayarları"
+msgstr "Nüfus ayarları"
 
-#: ../src/e_mod_config.c:92
+#: src/e_mod_config.c:92
 msgid "Number of penguins:"
-msgstr "Penguen sayısı:"
+msgstr "Penguen sayısı"
 
-#: ../src/e_mod_config.c:94 ../src/e_mod_config.c:104
+#: src/e_mod_config.c:94 src/e_mod_config.c:104
 #, c-format
 msgid "%1.0f"
 msgstr "%1.0f"
 
-#: ../src/e_mod_config.c:97
+#: src/e_mod_config.c:97
 msgid "Zoom factor:"
-msgstr "Yakınlaştırma oranı:"
+msgstr "Büyütme etkisi:"
 
-#: ../src/e_mod_config.c:99
+#: src/e_mod_config.c:99
 #, c-format
 msgid "%1.1f X"
 msgstr "%1.1f X"
 
-#: ../src/e_mod_config.c:102
+#: src/e_mod_config.c:102
 msgid "Transparency:"
 msgstr "Şeffaflık:"
 
-#. Lista
-#: ../src/e_mod_config.c:108
+#: src/e_mod_config.c:108
 msgid "Select population:"
-msgstr "Nüfusu seç"
+msgstr "Nüfusu seç:"
 
-#: ../src/e_mod_main.c:62
-msgid "Appearance"
-msgstr "Görünüm"
+#: src/e_mod_main.c:61
+msgid "Look"
+msgstr "Bak"
 
-#: ../src/e_mod_main.c:63
+#: src/e_mod_main.c:62
 msgid "Penguins"
 msgstr "Penguenler"

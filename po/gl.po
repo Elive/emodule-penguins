@@ -5,41 +5,34 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: penguins\n"
-"Report-Msgid-Bugs-To: enlightenment-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2012-08-30 19:32+0200\n"
-"PO-Revision-Date: 2012-09-17 12:30+0200\n"
-"Last-Translator: Aníbal Garrido <khany@member.trisquel.info>\n"
+"Report-Msgid-Bugs-To: $MSGID_BUGS_ADDRESS\n"
+"POT-Creation-Date: 2013-08-24 11:51+0200\n"
+"PO-Revision-Date: 2013-07-09 08:53+0000\n"
+"Last-Translator: Miguel Anxo Bouzada <mbouzada@gmail.com>\n"
 "Language-Team: http://trasno.net/ <proxecto@trasno.net>\n"
-"Language: gl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-
-#: src/e_mod_main.c:61
-msgid "Look"
-msgstr "Aspecto"
-
-#: src/e_mod_main.c:62
-msgid "Penguins"
-msgstr "Pingüíns"
+"X-Launchpad-Export-Date: 2013-08-25 05:01+0000\n"
+"X-Generator: Launchpad (build 16738)\n"
+"Language: gl\n"
 
 #: src/e_mod_config.c:42
 msgid "Population Settings"
-msgstr "Configuración da poboación"
+msgstr "Axustes de población"
 
 #: src/e_mod_config.c:92
 msgid "Number of penguins:"
 msgstr "Número de pingüíns:"
 
-#: src/e_mod_config.c:94
-#: src/e_mod_config.c:104
+#: src/e_mod_config.c:94 src/e_mod_config.c:104
 #, c-format
 msgid "%1.0f"
 msgstr "%1.0f"
 
 #: src/e_mod_config.c:97
 msgid "Zoom factor:"
-msgstr "Factor de zoom:"
+msgstr "Factor de ampliación:"
 
 #: src/e_mod_config.c:99
 #, c-format
@@ -52,5 +45,12 @@ msgstr "Transparencia:"
 
 #: src/e_mod_config.c:108
 msgid "Select population:"
-msgstr "Seleccionar poboación:"
+msgstr "Escolla a población:"
 
+#: src/e_mod_main.c:61
+msgid "Look"
+msgstr "Aparencia"
+
+#: src/e_mod_main.c:62
+msgid "Penguins"
+msgstr "Pingüíns"
