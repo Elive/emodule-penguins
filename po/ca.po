@@ -1,36 +1,35 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Marc Furtià  i Puig\\\n"
-"Report-Msgid-Bugs-To: enlightenment-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2013-01-29 18:09+0100\n"
-"PO-Revision-Date: 2013-02-01 09:53+0100\n"
-"Last-Translator: Marc Furtià i Puig <marc.furtia@gmail.com>\n"
+"Report-Msgid-Bugs-To: $MSGID_BUGS_ADDRESS\n"
+"POT-Creation-Date: 2013-08-24 11:51+0200\n"
+"PO-Revision-Date: 2014-05-26 21:41+0000\n"
+"Last-Translator: joancoll <Unknown>\n"
 "Language-Team: \n"
-"Language: ca\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Launchpad-Export-Date: 2014-05-27 05:40+0000\n"
+"X-Generator: Launchpad (build 17017)\n"
+"Language: ca\n"
 "X-Poedit-Bookmarks: -1,-1,1139,-1,-1,-1,-1,-1,-1,-1\n"
-"X-Generator: Poedit 1.5.4\n"
 
 #: src/e_mod_config.c:42
 msgid "Population Settings"
-msgstr "Preferències Població"
+msgstr "Configuració de població"
 
 #: src/e_mod_config.c:92
 msgid "Number of penguins:"
-msgstr "Nombre de pinguins"
+msgstr "Nombre de pingüins"
 
-#: src/e_mod_config.c:94
-#: src/e_mod_config.c:104
+#: src/e_mod_config.c:94 src/e_mod_config.c:104
 #, c-format
 msgid "%1.0f"
 msgstr "%1.0f"
 
 #: src/e_mod_config.c:97
 msgid "Zoom factor:"
-msgstr "Factor de Zoom:"
+msgstr "Factor d'ampliació:"
 
 #: src/e_mod_config.c:99
 #, c-format
@@ -43,15 +42,12 @@ msgstr "Transparència:"
 
 #: src/e_mod_config.c:108
 msgid "Select population:"
-msgstr "Selecciona Població:"
+msgstr "Seleccioni població:"
 
 #: src/e_mod_main.c:61
 msgid "Look"
-msgstr "Aparença"
+msgstr "Aspecte"
 
 #: src/e_mod_main.c:62
 msgid "Penguins"
-msgstr "Pingüins "
-
-#~ msgid "Appearance"
-#~ msgstr "Erscheinungsbild"
+msgstr "Pingüins"
