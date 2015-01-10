@@ -280,22 +280,33 @@ static void
 _population_load(void)
 {
    Penguins_Actor *tux;
-   E_Comp *comp;
    E_Zone *zone;
    Eina_List *zones = NULL;
-   Eina_List *l, *l2;
+   Eina_List *l2;
    int i;
 
    // Build a temporary flat list of E_Zone*
    printf("PENGUINS: Hooking zones...\n");
-   EINA_LIST_FOREACH((Eina_List*)e_comp_list(), l, comp)
-   {
-      EINA_LIST_FOREACH(comp->zones, l2, zone)
+   #if E_VERSION_MAJOR == 20
+      EINA_LIST_FOREACH(e_comp->zones, l2, zone)
       {
          zones = eina_list_append(zones, zone);
-         printf("PENGUINS:   Zone: %s - %s || %d,%d @ %dx%d\n", zone->comp->name, zone->name, zone->x, zone->y, zone->w, zone->h);
+         printf("PENGUINS:   Zone: %s - %s || %d,%d @ %dx%d\n",
+                zone->comp->name, zone->name, zone->x, zone->y, zone->w, zone->h);
       }
-   }
+   #else
+      E_Comp *comp;
+      Eina_List *l;
+      EINA_LIST_FOREACH((Eina_List*)e_comp_list(), l, comp)
+      {
+         EINA_LIST_FOREACH(comp->zones, l2, zone)
+         {
+            zones = eina_list_append(zones, zone);
+            printf("PENGUINS:   Zone: %s - %s || %d,%d @ %dx%d\n",
+                   zone->comp->name, zone->name, zone->x, zone->y, zone->w, zone->h);
+         }
+      }
+   #endif
 
    // Create one object for each penguin
    printf("PENGUINS: Creating %d penguins\n", population->conf->penguins_count);
