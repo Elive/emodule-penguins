@@ -1,24 +1,26 @@
 #
-# Саша Петровић <salepetronije@gmail.com>, 2013.
+# Саша Петровић <salepetronije@gmail.com>, 2013, 2015.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: trunk\n"
 "Report-Msgid-Bugs-To: $MSGID_BUGS_ADDRESS\n"
 "POT-Creation-Date: 2013-08-24 11:51+0200\n"
-"PO-Revision-Date: 2013-07-24 13:47+0000\n"
+"PO-Revision-Date: 2015-01-31 16:04+0100\n"
 "Last-Translator: Саша Петровић <salepetronije@gmail.com>\n"
-"Language-Team: српски <xfce-i18n@xfce.org>\n"
+"Language-Team: српски <xfce4@xfce4.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2013-08-25 05:01+0000\n"
-"X-Generator: Launchpad (build 16738)\n"
+"X-Generator: Gtranslator 2.91.6\n"
 "Language: \n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #: src/e_mod_config.c:42
 msgid "Population Settings"
-msgstr "Поставке популације"
+msgstr "Поставке становника"
 
 #: src/e_mod_config.c:92
 msgid "Number of penguins:"
@@ -31,7 +33,7 @@ msgstr "%1.0f"
 
 #: src/e_mod_config.c:97
 msgid "Zoom factor:"
-msgstr "Множилац увећања"
+msgstr "Множилац увећања:"
 
 #: src/e_mod_config.c:99
 #, c-format
@@ -44,7 +46,7 @@ msgstr "Провидност:"
 
 #: src/e_mod_config.c:108
 msgid "Select population:"
-msgstr "Одредите популацију"
+msgstr "Одредите становнике:"
 
 #: src/e_mod_main.c:61
 msgid "Look"
