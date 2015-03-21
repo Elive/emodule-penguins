@@ -292,7 +292,7 @@ _population_load(void)
       {
          zones = eina_list_append(zones, zone);
          printf("PENGUINS:   Zone: %s - %s || %d,%d @ %dx%d\n",
-                zone->comp->name, zone->name, zone->x, zone->y, zone->w, zone->h);
+                e_comp->name, zone->name, zone->x, zone->y, zone->w, zone->h);
       }
    #else
       E_Comp *comp;
@@ -316,7 +316,11 @@ _population_load(void)
       if (!tux) return;
 
       tux->zone = eina_list_nth(zones, i % eina_list_count(zones));
+#if E_VERSION_MAJOR == 20
+      tux->obj = edje_object_add(e_comp->evas);
+#else
       tux->obj = edje_object_add(tux->zone->comp->evas);
+#endif
       edje_object_file_set(tux->obj, population->conf->theme, "anims");
       evas_object_color_set(tux->obj, population->conf->alpha, population->conf->alpha,
                                       population->conf->alpha, population->conf->alpha);
@@ -586,8 +590,11 @@ static int
 _is_inside_any_win(Penguins_Actor *tux, int x, int y, int ret_value)
 {
    Evas_Object *o;
-
+#if E_VERSION_MAJOR == 20
+   o = evas_object_top_get(e_comp->evas);
+#else
    o = evas_object_top_get(tux->zone->comp->evas);
+#endif
    while (o)
    {
       int xx, yy, ww, hh;
