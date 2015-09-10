@@ -4,7 +4,7 @@
 #  define E_MOD_CONFIG_H
 #  include "e_mod_main.h"
 
-E_Config_Dialog *e_int_config_penguins_module(E_Comp *comp, const char *params);
+E_Config_Dialog *e_int_config_penguins_module(Evas_Object *parent, const char *params);
 
 # endif
 #endif

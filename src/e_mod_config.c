@@ -21,7 +21,7 @@ static int _basic_apply_data(E_Config_Dialog *cfd, E_Config_Dialog_Data *cfdata)
 static void _fill_data(Penguins_Population *pop, E_Config_Dialog_Data *cfdata);
 
 E_Config_Dialog *
-e_int_config_penguins_module(E_Comp *comp, const char *params)
+e_int_config_penguins_module(Evas_Object *parent, const char *params)
 {
    E_Config_Dialog *cfd;
    E_Config_Dialog_View *v;
@@ -38,7 +38,7 @@ e_int_config_penguins_module(E_Comp *comp, const char *params)
    v->basic.create_widgets = _basic_create_widgets;
 
    snprintf(buf, sizeof(buf), "%s/e-module-penguins.edj", e_module_dir_get(pop->module));
-   cfd = e_config_dialog_new(comp, D_("Population Settings"),
+   cfd = e_config_dialog_new(parent, D_("Population Settings"),
                              "Penguins", "appearance/penguins",
                              buf, 0, v, pop);
    pop->config_dialog = cfd;

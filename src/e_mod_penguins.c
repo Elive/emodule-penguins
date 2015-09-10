@@ -380,8 +380,8 @@ _cb_zone_changed(void *data, int type EINA_UNUSED, void *event EINA_UNUSED)
 static void
 _reborn(Penguins_Actor *tux)
 {
-   printf("PENGUINS: Reborn on zone: %s (%d,%d @ %dx%d)\n",
-          tux->zone->name, tux->zone->x, tux->zone->y, tux->zone->w, tux->zone->h);
+   // printf("PENGUINS: Reborn on zone: %s (%d,%d @ %dx%d)\n", tux->zone->name,
+   //        tux->zone->x, tux->zone->y, tux->zone->w, tux->zone->h);
    tux->custom = NULL;
    tux->action = population->actions[AID_FALLER];
    tux->reverse = random() % (2);
