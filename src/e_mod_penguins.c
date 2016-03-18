@@ -287,7 +287,7 @@ _population_load(void)
 
    // Build a temporary flat list of E_Zone*
    printf("PENGUINS: Hooking zones...\n");
-   #if E_VERSION_MAJOR == 20
+   #if E_VERSION_MAJOR >= 20
       EINA_LIST_FOREACH(e_comp->zones, l2, zone)
       {
          zones = eina_list_append(zones, zone);
@@ -316,7 +316,7 @@ _population_load(void)
       if (!tux) return;
 
       tux->zone = eina_list_nth(zones, i % eina_list_count(zones));
-#if E_VERSION_MAJOR == 20
+#if E_VERSION_MAJOR >= 20
       tux->obj = edje_object_add(e_comp->evas);
 #else
       tux->obj = edje_object_add(tux->zone->comp->evas);
@@ -590,7 +590,7 @@ static int
 _is_inside_any_win(Penguins_Actor *tux, int x, int y, int ret_value)
 {
    Evas_Object *o;
-#if E_VERSION_MAJOR == 20
+#if E_VERSION_MAJOR >= 20
    o = evas_object_top_get(e_comp->evas);
 #else
    o = evas_object_top_get(tux->zone->comp->evas);
