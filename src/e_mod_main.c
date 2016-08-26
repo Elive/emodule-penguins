@@ -126,7 +126,7 @@ _population_init(E_Module *m)
 
       pop->conf = E_NEW(Config, 1);
       pop->conf->zoom = 1;
-      pop->conf->penguins_count = 3;
+      pop->conf->penguins_count = 20;
       pop->conf->alpha = 200;
       snprintf(buf, sizeof(buf), "%s/themes/default.edj", e_module_dir_get(m));
       pop->conf->theme = eina_stringshare_add(buf);
